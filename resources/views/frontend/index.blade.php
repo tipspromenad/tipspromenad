@@ -15,5 +15,5 @@
         </div><!-- row -->
     @endrole
 
-    @include('frontend.includes.lazy-guide')
+    <h1>Detta är startsidan!</h1>
 @endsection

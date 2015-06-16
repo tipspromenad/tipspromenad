@@ -11,6 +11,11 @@ Route::get('lazy', function ()
     return view('frontend/lazy');
 });
 
+Route::get('wictor', function ()
+{
+    return view('frontend/wictor');
+});
+
 /**
  * These frontend controllers require the user to be logged in
  */
