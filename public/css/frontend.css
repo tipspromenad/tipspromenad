@@ -8320,19 +8320,19 @@ button.close {
 .white-bg {
   background-color: #ffffff;
 }
-.gray-darker {
+.gray-darker-bg {
   background-color: #222222;
 }
-.gray-dark {
+.gray-dark-bg {
   background-color: #333333;
 }
-.gray {
+.gray-bg {
   background-color: #555555;
 }
-.gray-light {
+.gray-light-bg {
   background-color: #777777;
 }
-.gray-lighter {
+.gray-lighter-bg {
   background-color: #eeeeee;
 }
 .primary-bg {
@@ -8353,19 +8353,19 @@ button.close {
 .white-border {
   border: 2px solid #ffffff;
 }
-.gray-darker {
+.gray-darker-border {
   border: 2px solid #222222;
 }
-.gray-dark {
+.gray-dark-border {
   border: 2px solid #333333;
 }
-.gray {
+.gray-border {
   border: 2px solid #555555;
 }
-.gray-light {
+.gray-light-border {
   border: 2px solid #777777;
 }
-.gray-lighter {
+.gray-lighter-border {
   border: 2px solid #eeeeee;
 }
 .primary-border {
