@@ -14,7 +14,7 @@ class Tip extends Model
      */
     public function questions()
     {
-        $this->hasMany(Question::class);
+        return $this->belongsToMany(Question::class)->withTimestamps();
     }
 
     /**
@@ -23,6 +23,6 @@ class Tip extends Model
      */
     public function user()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 }

@@ -14,7 +14,16 @@ class Question extends Model
      */
     public function tips()
     {
-        $this->belongsToMany(Tip::class)->withTimestamps();
+        return $this->belongsToMany(Tip::class)->withTimestamps();
+    }
+
+    /**
+     * a question can belong to many tags
+     * @return Tag::class (all the tags that is added to a qeustion)
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
     /**
@@ -23,7 +32,7 @@ class Question extends Model
      */
     public function user()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 
 }

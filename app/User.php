@@ -88,7 +88,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 */
 	public function tips()
 	{
-		$this->hasMany(Tip::class);
+		return $this->hasMany(Tip::class);
 	}
 
 	/**
@@ -97,7 +97,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 */
 	public function questions()
 	{
-		$this->hasMany(Question::class);
+		return $this->hasMany(Question::class);
 	}
 
 }
