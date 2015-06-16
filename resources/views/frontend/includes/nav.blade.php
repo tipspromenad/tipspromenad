@@ -7,13 +7,15 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="">{{app_name()}}</a>
+				<a  class="navbar-brand" href="http://tipspromenad.dev">{{app_name()}}</a>
 			</div>
 
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
 					<li>{!! link_to('/', 'Home') !!}</li>
 					<li>{!! link_to('macros', 'Macros') !!}</li>
+					<li>{!! link_to('lazy', 'Lazy-guide') !!}</li>
+					<li>{!! link_to('wictor', 'Wictor') !!}</li>
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
