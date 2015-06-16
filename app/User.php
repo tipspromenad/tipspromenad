@@ -1,5 +1,7 @@
 <?php namespace App;
 
+use App\Tip;
+use App\Question;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -79,4 +81,23 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 			return "<label class='label label-success'>Yes</label>";
 		return "<label class='label label-danger'>No</label>";
 	}
+
+	/**
+	 * alla tipspromenader som är skapade/associerade med user
+	 * @return Tip::class (alla associerade tipspromenader)
+	 */
+	public function tips()
+	{
+		$this->hasMany(Tip::class);
+	}
+
+	/**
+	 * alla frågor som är skapade av user
+	 * @return Question::class (alla associerade frågor)
+	 */
+	public function questions()
+	{
+		$this->hasMany(Question::class);
+	}
+
 }
