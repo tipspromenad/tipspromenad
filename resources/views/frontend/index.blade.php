@@ -14,6 +14,9 @@
             </div><!-- col-md-10 -->
         </div><!-- row -->
     @endrole
-
-    <h1>Detta är startsidan!</h1>
+    <div class="row">
+        <div class="col-xs-12">
+            <h1>Detta är startsidan! <small>plz använd row och col...</small></h1>
+        </div>
+    </div><!--  /.row -->
 @endsection
