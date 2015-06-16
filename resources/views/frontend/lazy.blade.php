@@ -6,7 +6,7 @@
 		<div class="col-md-10 col-md-offset-1">
 
 			<div class="panel panel-default">
-				<div class="panel-heading"><i class="fa fa-gear fa-spin font-s-16"></i> <a href="{{ url('/lazy') }}">{{ env('APP_URL') }}/lazy</a></div>
+            <div class="panel-heading"><i class="fa fa-gear fa-spin font-s-16"></i> <a href="{{ url('/lazy') }}">{{ env('APP_URL') }}/lazy</a></div>
 
 				<div class="panel-body">
 					<p>
@@ -32,11 +32,11 @@
                     </p>
                     <div class="row">
                         <h4>text-color <small>endast namnet på färg-typen</small></h4>
-                        <pre class="primary col-xs-3">&lt;obj class="primary"&gt;</pre>
-                        <pre class="success col-xs-3">&lt;obj class="success"&gt;</pre>
-                        <pre class="info col-xs-3">&lt;obj class="info"&gt;</pre>
-                        <pre class="warning col-xs-3">&lt;obj class="warning"&gt;</pre>
-                        <pre class="danger col-xs-3">&lt;obj class="danger"&gt;</pre>
+                        <pre class="primary col-xs-3">class="primary"</pre>
+                        <pre class="success col-xs-3">class="success"</pre>
+                        <pre class="info col-xs-3">class="info"</pre>
+                        <pre class="warning col-xs-3">class="warning"</pre>
+                        <pre class="danger col-xs-3">class="danger"</pre>
                     </div>
                     <div class="row">
                         <h4>background-color <small>namnet på färg-typen *-bg</small></h4>

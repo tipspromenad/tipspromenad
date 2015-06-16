@@ -6,6 +6,11 @@
 Route::get('/', ['as' => 'home', 'uses' => 'FrontendController@index']);
 Route::get('macros', 'FrontendController@macros');
 
+Route::get('lazy', function ()
+{
+    return view('frontend/lazy');
+});
+
 /**
  * These frontend controllers require the user to be logged in
  */
