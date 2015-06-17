@@ -8291,7 +8291,6 @@ button.close {
   background-position: center;
   background-size: cover;
   height: 300px;
-  color: #337bb7;
 }
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
