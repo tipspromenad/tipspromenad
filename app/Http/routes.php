@@ -6,7 +6,7 @@
  */
 Route::group(['namespace' => 'Frontend'], function ()
 {
-	require_once(__DIR__ . "/Routes/Frontend/Frontend.php");
+	require_once(__DIR__ . "/Routes/Frontend/FrontendRoutes.php");
 	require_once(__DIR__ . "/Routes/Frontend/Access.php");
 });
 
