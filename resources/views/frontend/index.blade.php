@@ -6,9 +6,6 @@
             max-width: 500px;
             margin-top: 15px;
         }
-        .press  {
-            max-width: 400px;
-        }
         .logo   {
             max-width: 1000px;
             margin-top: 20px;
@@ -17,14 +14,18 @@
 @endsection
 
 @section('content')
-    <div class="row center-block siffror">
+    <div class="row">
         <div class="col-xs-12">
-            <img src="{!!asset('img/frontend/ettakrysstva.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+            <div class="siffror center-block">
+                <img src="{!!asset('img/frontend/ettakrysstva.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+            </div>
         </div>
     </div><!--  /.row -->
-    <div class="row center-block logo">
+    <div class="row">
         <div class="col-xs-12">
-            <img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+            <div class="logo center-block">
+                <img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+            </div>
         </div>
     </div><!--  /.row -->
 @endsection
