@@ -17,26 +17,34 @@
             position: relative;
             padding: 30px 0;
         }
-        .bakgrundsbild {
-          background: url(blurrybakgrund.png) ;
-          background-position: center;
-          background-size: cover;
-          height:  300px;
-        }
     </style>
 @endsection
 
 @section('content')
 
     <!-- Section konferensbild -->
-    <section class="bakgrundsbild" data-speed="10" data-type="background">
+    <section class="bakgrundsbild">
         <div class="container" >
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                    <h1>HALLÅHALLÅ</h1>
                 </div><!--// col -->
             </div><!--// row -->
         </div><!--// container -->
     </section> <!--// konferensbild -->
+
+    <!-- Section konferensbild -->
+    <section class="success-bg">
+        <div class="container" >
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                    <h1>HALLÅ</h1>
+                </div><!--// col -->
+            </div><!--// row -->
+        </div><!--// container -->
+    </section> <!--// konferensbild -->
+
+<div class="container-fluid">
 
     <div class="row">
         <div class="col-xs-12">
@@ -70,4 +78,5 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
