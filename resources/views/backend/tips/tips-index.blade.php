@@ -16,7 +16,7 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
-            <h1>Tipspromenader</h1>
+            <h1>Tipspromenader <a href="{{ action('Backend\TipsController@create') }}"><small>skapa ny <i class="fa fa-plus success"></i></small></a></h1>
 
             <table class="table table-striped table-condensed table-hover">
                 <thead>
@@ -39,13 +39,19 @@
                         <tr>
                             <td>
                             <a href="{{ action('Backend\TipsController@edit', $tipspromenad->id) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>
-                            <a data-method="delete" class="btn btn-xs btn-danger"><i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>
+
+                            <a data-method="delete" class="btn btn-xs btn-danger" style="cursor:pointer;" onclick="$(this).find(&quot;form&quot;).submit();"><i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i>
+                            <form action="{{ action('Backend\TipsController@destroy', $tipspromenad->id) }}" method="POST" name="delete_item" style="display:none">
+                               <input type="hidden" name="_method" value="delete">
+                               <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            </form>
+                            </a>
 
                             </td>
                             <td>{{ $tipspromenad->id }}</td>
                             <td>{{ $tipspromenad->user['name'] }}</td>
                             <td>{{ $tipspromenad->name }}</td>
-                            <td>{{ $tipspromenad->description }}</td>
+                            <td>{{ $tipspromenad->snippet('description', 20) }}</td>
                             <td>{{ $tipspromenad->questions()->count() }}</td>
                             <td>{{ $tipspromenad->mobile }}</td>
                             <td>{{ $tipspromenad->mobile_question }}</td>

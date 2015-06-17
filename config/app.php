@@ -159,6 +159,7 @@ return [
 		'App\Providers\MacroServiceProvider',
 		'Laravel\Socialite\SocialiteServiceProvider',
 		'HieuLe\Active\ActiveServiceProvider',
+		'Barryvdh\Debugbar\ServiceProvider'
 	],
 
 	/*
@@ -211,5 +212,6 @@ return [
 		'Form'		=> 'Illuminate\Html\FormFacade',
 		'HTML'		=> 'Illuminate\Html\HtmlFacade',
 		'Socialize' => 'Laravel\Socialite\Facades\Socialite',
+		'Debugbar' => 'Barryvdh\Debugbar\Facade'
 	],
 ];

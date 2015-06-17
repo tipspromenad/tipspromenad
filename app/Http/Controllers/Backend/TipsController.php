@@ -10,6 +10,12 @@ use App\Http\Controllers\Controller;
 
 class TipsController extends Controller
 {
+    public function testAjax($id, Request $request)
+    {
+        dd($id);
+        $tips = App\Tip::find($id);
+        return Response::json(['data' => array('message' => 'thanks for registering!', 'redirecturl' => '/')]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +34,7 @@ class TipsController extends Controller
      */
     public function create()
     {
-        //
+        return view('backend.tips.tips-create');
     }
 
     /**
@@ -60,7 +66,8 @@ class TipsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $tipspromenad = Tip::find($id);
+        return view('backend.tips.tips-edit', compact('tipspromenad'));
     }
 
     /**
@@ -82,6 +89,7 @@ class TipsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Tip::find($id)->delete($id);
+        return redirect()->back()->withFlashSuccess('Tipspromenaden är permanent raderad.');
     }
 }
