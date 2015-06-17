@@ -10,10 +10,33 @@
             max-width: 1000px;
             margin-top: 20px;
         }
+        section{
+            height: auto;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            padding: 30px 0;
+        }
+        .bakgrundsbild {
+          background: url(blurrybakgrund.png) ;
+          background-position: center;
+          background-size: cover;
+          height:  300px;
+        }
     </style>
 @endsection
 
 @section('content')
+
+    <!-- Section konferensbild -->
+    <section class="bakgrundsbild" data-speed="10" data-type="background">
+        <div class="container" >
+            <div class="row">
+                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                </div><!--// col -->
+            </div><!--// row -->
+        </div><!--// container -->
+    </section> <!--// konferensbild -->
 
     <div class="row">
         <div class="col-xs-12">
