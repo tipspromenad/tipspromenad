@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tip extends Model
 {
+    public function userName()
+    {
+        return "Allan";
+    }
+
     /**
      * en tipspromenad hasMany questions
      * @return Question::class (alla frågor som är sparade till tipspromenaden)

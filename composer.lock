@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f8430e1758cee8a2f4f5d74a2427755d",
+    "hash": "be330eeebb6c68ac08d647a6441cf6c8",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -535,6 +535,59 @@
                 "uri"
             ],
             "time": "2015-05-19 17:58:45"
+        },
+        {
+            "name": "hieu-le/active",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/letrunghieu/active.git",
+                "reference": "b5d8e1c03e63f5e7ce841e2d0dcaa28553526cdf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/letrunghieu/active/zipball/b5d8e1c03e63f5e7ce841e2d0dcaa28553526cdf",
+                "reference": "b5d8e1c03e63f5e7ce841e2d0dcaa28553526cdf",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "~5.0",
+                "illuminate/routing": "~5.0",
+                "illuminate/support": "~5.0",
+                "php": ">=5.4.0"
+            },
+            "conflict": {
+                "watson/active": "*"
+            },
+            "require-dev": {
+                "mockery/mockery": "dev-master",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "HieuLe\\Active\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hieu Le",
+                    "email": "letrunghieu.cse09@gmail.com",
+                    "homepage": "http://www.hieule.info"
+                }
+            ],
+            "description": "The helper class for Laravel 4 applications to get active class base on current route",
+            "homepage": "http://www.hieule.info/products/active-class-helper-laravel-4/",
+            "keywords": [
+                "active",
+                "laravel",
+                "routing"
+            ],
+            "time": "2015-05-19 02:55:55"
         },
         {
             "name": "illuminate/html",

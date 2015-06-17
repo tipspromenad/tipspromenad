@@ -158,6 +158,7 @@ return [
 		'App\Providers\RouteServiceProvider',
 		'App\Providers\MacroServiceProvider',
 		'Laravel\Socialite\SocialiteServiceProvider',
+		'HieuLe\Active\ActiveServiceProvider',
 	],
 
 	/*
@@ -206,6 +207,7 @@ return [
 		'View'      => 'Illuminate\Support\Facades\View',
 
 		/* Third Party */
+		'Active' => 'HieuLe\Active\Facades\Active',
 		'Form'		=> 'Illuminate\Html\FormFacade',
 		'HTML'		=> 'Illuminate\Html\HtmlFacade',
 		'Socialize' => 'Laravel\Socialite\Facades\Socialite',
