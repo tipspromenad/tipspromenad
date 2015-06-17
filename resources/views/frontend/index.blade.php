@@ -14,6 +14,7 @@
 @endsection
 
 @section('content')
+
     <div class="row">
         <div class="col-xs-12">
             <div class="siffror center-block">
@@ -21,13 +22,23 @@
             </div>
         </div>
     </div><!--  /.row -->
+
     <div class="row">
         <div class="col-xs-12">
             <div class="logo center-block">
-                <img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+                <a href="http://tipspromenad.dev" title="Klicka för att komma till startsidan."><img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class=”img-responsive" alt=”tipspromenad.NU" /></a>
             </div>
         </div>
     </div><!--  /.row -->
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="img-responsive text-center">
+                <img src="{!!asset('img/frontend/blurrybild.png')!!}" style="max-width: 80%; margin-top: 20px; margin-bottom: 40px;" alt=”Bild med suddig skog." />
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1">
             <div class="text-center">
