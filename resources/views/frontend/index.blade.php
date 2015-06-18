@@ -2,6 +2,9 @@
 
 @section('after-styles-end')
     <style type="text/css">
+        body{
+            margin-top: 0px;
+        }
         .siffror    {
             max-width: 500px;
             margin-top: 15px;

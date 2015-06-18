@@ -1,4 +1,4 @@
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-fixed-top">
 		<div class="container-fluid">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -17,8 +17,8 @@
 
 				<ul class="nav navbar-nav navbar-right">
 					@if (Auth::guest())
-						<li>{!! link_to('auth/login', 'Logga in') !!}</li>
-						<li>{!! link_to('auth/register', 'Skapa konto') !!}</li>
+						<li><a href="http://tipspromenad.dev/auth/login"><i class="fa fa-sign-in"></i> Logga in</a></li>
+						<li><a href="http://tipspromenad.dev/auth/register"><i class="fa fa-user-plus"></i> Skapa konto</a></li>
 					@else
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->name }} <span class="caret"></span></a>
