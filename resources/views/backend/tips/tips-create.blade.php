@@ -35,7 +35,7 @@
             </div>
             <button class="btn btn-success form-control" type="submit">
                 Skapa Tipspromenad
-              </button>
+            </button>
             </div>
             {!! Form::close() !!}
     </div><!-- /.box-body -->

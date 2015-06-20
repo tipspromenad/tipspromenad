@@ -101,7 +101,7 @@ $(function() {
             data[$id] = newData;
             $.ajax({
                     type: "POST",
-                    url : "{{ url('admin/test/' . $tipspromenad->id ) }}",
+                    url : "{{ url('admin/test/' . $tipspromenad->id .'' ) }}",
                     data : data,
                     success : function(data){
                         console.log('Jag tror att vi klarade det!' + data.message + data['message']);

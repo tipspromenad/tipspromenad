@@ -40,10 +40,11 @@
                             <td>
                             <a href="{{ action('Backend\TipsController@edit', $tipspromenad->id) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>
 
-                            <a data-method="delete" class="btn btn-xs btn-danger" style="cursor:pointer;" onclick="$(this).find(&quot;form&quot;).submit();"><i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i>
-                            <form action="{{ action('Backend\TipsController@destroy', $tipspromenad->id) }}" method="POST" name="delete_item" style="display:none">
+                            <a data-method="delete" class="btn btn-xs btn-danger" style="cursor:pointer;" onclick="$(this).find('#form{{ $tipspromenad->id }}').submit();"><i class="fa fa-trash" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete"></i>
+                            <form id="#form{{ $tipspromenad->id }}" action="{{ action('Backend\TipsController@destroy', $tipspromenad->id) }}" method="POST" name="delete_item" style="display:none">
                                <input type="hidden" name="_method" value="delete">
                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                               <button class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
                             </form>
                             </a>
 

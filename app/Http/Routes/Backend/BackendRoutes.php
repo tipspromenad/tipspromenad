@@ -8,6 +8,12 @@
 Route::get('startsida', ['as' => 'backend.dashboard', 'uses' => 'DashboardController@index']);
 
 Route::resource('tipspromenad', 'TipsController');
+Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');
+// Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');
+// Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');
+// Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');
+// Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');
+
 
 post('test/{id}', function($id) {
     $msg = "";
@@ -23,4 +29,4 @@ post('test/{id}', function($id) {
 
 });
 
-post('testar/{id}', 'TipsController@testAjax');
+// Route::post('tipspromenad/{id}/uppdatera', 'TipsController@uppdatera');

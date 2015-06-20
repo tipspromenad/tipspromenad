@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tip extends Model
 {
+    public $fillable = ['name', 'desciption'];
     public function snippet($attr, $max = 10, $strip = true)
     {
         $string = $this->$attr;
