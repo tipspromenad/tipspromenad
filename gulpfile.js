@@ -19,6 +19,13 @@ elixir(function(mix) {
             'frontend/main.js'
         ], 'public/js/frontend.js', 'resources/assets/js')
 
+        //VueJS scripts
+        .scripts([ //combine all VueJS - stuff
+            'VueJS.min.js',
+            'vue-resources.min.js',
+            // later on i will put all Vue-scripts here aswell.
+        ], 'public/js/vue.js', 'resources/assets/js/frontend/VueJS')
+
         .less([ // Process back-end stylesheets
             'backend/AdminLTE.less',
         ], 'resources/assets/css/backend')

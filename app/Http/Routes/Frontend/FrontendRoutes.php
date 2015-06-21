@@ -16,6 +16,11 @@ Route::get('wictor', function ()
     return view('frontend/wictor');
 });
 
+Route::get('questions', function ()
+{
+    return view('frontend/questions');
+});
+
 /**
  * These frontend controllers require the user to be logged in
  */
