@@ -1,62 +1,16 @@
 // ***       text-* any added color       ***  //
 // *** Sets the text color of that element *** //
-.text-white{
-    .text-color(@white);
-}
-//no need for text-primary etc since that comes with bootstrap
-.text-black{
-    .text-color(@black);
-}
-.text-gray-lighter{
-    .text-color(@gray-lighter);
-}
-.text-gray-light{
-    .text-color(@gray-light);
-}
-.text-gray{
-    .text-color(@gray);
-}
-.text-gray-dark{
-    .text-color(@gray-dark);
-}
-.text-gray-darker{
-    .text-color(@gray-darker);
-}
 
-// text-*color-hover
-.text-white-hover{
-    .text-color-hover(@white);
-}
-.text-primary-hover{
-    .text-color-hover(@brand-primary);
-}
-.text-danger-hover{
-    .text-color-hover(@brand-danger);
-}
-.text-success-hover{
-    .text-color-hover(@brand-success);
-}
-.text-info-hover{
-    .text-color-hover(@brand-info);
-}
-.text-warning-hover{
-    .text-color-hover(@brand-warning);
-}
-.text-black-hover{
-    .text-color-hover(@black);
-}
-.text-gray-lighter-hover{
-    .text-color-hover(@gray-lighter);
-}
-.text-gray-light-hover{
-    .text-color-hover(@gray-light);
-}
-.text-gray-hover{
-    .text-color-hover(@gray);
-}
-.text-gray-dark-hover{
-    .text-color-hover(@gray-dark);
-}
-.text-gray-darker-hover{
-    .text-color-hover(@gray-darker);
-}
+.generate-text-color(@brand-primary, primary);
+.generate-text-color(@brand-success, success);
+.generate-text-color(@brand-danger, danger);
+.generate-text-color(@brand-info, info);
+.generate-text-color(@brand-warning, warning);
+
+.generate-text-color(@white, white);
+.generate-text-color(@black, black);
+.generate-text-color(@gray-lighter, gray-lighter);
+.generate-text-color(@gray-light, gray-light);
+.generate-text-color(@gray, gray);
+.generate-text-color(@gray-dark, gray-dark);
+.generate-text-color(@gray-darker, gray-darker);

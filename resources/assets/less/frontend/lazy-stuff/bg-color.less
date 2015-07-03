@@ -1,72 +1,16 @@
 // ***       bg-* any added color       ***  //
 // *** Sets the bg color of that element *** //
 
-.bg-primary{
-    .bg-color(@brand-primary);
-}
-.bg-danger{
-    .bg-color(@brand-danger);
-}
-.bg-success{
-    .bg-color(@brand-success);
-}
-.bg-info{
-    .bg-color(@brand-info);
-}
-.bg-warning{
-    .bg-color(@brand-warning);
-}
-.bg-black{
-    .bg-color(@black);
-}
-.bg-gray-lighter{
-    .bg-color(@gray-lighter);
-}
-.bg-gray-light{
-    .bg-color(@gray-light);
-}
-.bg-gray{
-    .bg-color(@gray);
-}
-.bg-gray-dark{
-    .bg-color(@gray-dark);
-}
-.bg-gray-darker{
-    .bg-color(@gray-darker);
-}
+.generate-bg-color(@brand-primary, primary);
+.generate-bg-color(@brand-success, success);
+.generate-bg-color(@brand-danger, danger);
+.generate-bg-color(@brand-info, info);
+.generate-bg-color(@brand-warning, warning);
 
-//bg-color-hover
-.bg-primary-hover{
-    .bg-color-hover(@brand-primary);
-}
-.bg-danger-hover{
-    .bg-color-hover(@brand-danger);
-}
-.bg-success-hover{
-    .bg-color-hover(@brand-success);
-}
-.bg-info-hover{
-    .bg-color-hover(@brand-info);
-}
-.bg-warning-hover{
-    .bg-color-hover(@brand-warning);
-}
-.bg-black-hover{
-    .bg-color-hover(@black);
-}
-.bg-gray-lighter-hover{
-    .bg-color-hover(@gray-lighter);
-}
-.bg-gray-light-hover{
-    .bg-color-hover(@gray-light);
-}
-.bg-gray-hover{
-    .bg-color-hover(@gray);
-}
-.bg-gray-dark-hover{
-    .bg-color-hover(@gray-dark);
-}
-.bg-gray-darker-hover{
-    .bg-color-hover(@gray-darker);
-}
-
+.generate-bg-color(@white, white);
+.generate-bg-color(@black, black);
+.generate-bg-color(@gray-lighter, gray-lighter);
+.generate-bg-color(@gray-light, gray-light);
+.generate-bg-color(@gray, gray);
+.generate-bg-color(@gray-dark, gray-dark);
+.generate-bg-color(@gray-darker, gray-darker);

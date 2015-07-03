@@ -1,76 +1,16 @@
 // ***       border-* any added color       ***  //
 // *** Sets the border color of that element *** //
-.border-white{
-    .border-color(@white);
-}
-.border-primary{
-    .border-color(@brand-primary);
-}
-.border-danger{
-    .border-color(@brand-danger);
-}
-.border-success{
-    .border-color(@brand-success);
-}
-.border-info{
-    .border-color(@brand-info);
-}
-.border-warning{
-    .border-color(@brand-warning);
-}
-.border-black{
-    .border-color(@black);
-}
-.border-gray-lighter{
-    .border-color(@gray-lighter);
-}
-.border-gray-light{
-    .border-color(@gray-light);
-}
-.border-gray{
-    .border-color(@gray);
-}
-.border-gray-dark{
-    .border-color(@gray-dark);
-}
-.border-gray-darker{
-    .border-color(@gray-darker);
-}
+.generate-border-color(@brand-primary, primary);
+.generate-border-color(@brand-success, success);
+.generate-border-color(@brand-info, info);
+.generate-border-color(@brand-warning, warning);
+.generate-border-color(@brand-danger, danger);
 
-//border-color-hover
-.border-white-hover{
-    .border-color-hover(@white);
-}
-.border-primary-hover{
-    .border-color-hover(@brand-primary);
-}
-.border-danger-hover{
-    .border-color-hover(@brand-danger);
-}
-.border-success-hover{
-    .border-color-hover(@brand-success);
-}
-.border-info-hover{
-    .border-color-hover(@brand-info);
-}
-.border-warning-hover{
-    .border-color-hover(@brand-warning);
-}
-.border-black-hover{
-    .border-color-hover(@black);
-}
-.border-gray-lighter-hover{
-    .border-color-hover(@gray-lighter);
-}
-.border-gray-light-hover{
-    .border-color-hover(@gray-light);
-}
-.border-gray-hover{
-    .border-color-hover(@gray);
-}
-.border-gray-dark-hover{
-    .border-color-hover(@gray-dark);
-}
-.border-gray-darker-hover{
-    .border-color-hover(@gray-darker);
-}
+.generate-border-color(@black, black);
+.generate-border-color(@white, white);
+
+.generate-border-color(@gray-lighter, gray-lighter);
+.generate-border-color(@gray-light, gray-light);
+.generate-border-color(@gray, gray);
+.generate-border-color(@gray-dark, gray-dark);
+.generate-border-color(@gray-darker, gray-darker);
