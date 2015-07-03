@@ -79,7 +79,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="img-responsive text-center">
-                <img src="{!!asset('img/frontend/blurrybild.png')!!}" style="max-width: 80%; margin-top: 20px; margin-bottom: 40px;" alt=”Bild med suddig skog." />
+                <img src="{!!asset('img/frontend/blurrybild.png')!!}" style="max-width: 80%; margin-top: 20px; margin-bottom: 40px;" alt="Bild med suddig skog." />
             </div>
         </div>
     </div>
