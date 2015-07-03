@@ -1,0 +1,46 @@
+/* text-color */
+.text-color(@text-color;) {
+  color: @text-color;
+}
+.text-color-hover(@text-color;) {
+  &:hover,
+  &:active,
+  &:focus,{
+    color: @text-color;
+  }
+}
+
+/* bg-color */
+.bg-color(@bg-color;) {
+  background-color: @bg-color;
+}
+.bg-color-hover(@bg-color;) {
+  &:hover,
+  &:active,
+  &:focus,{
+    background-color: @bg-color;
+  }
+}
+
+/* border-color */
+.border-color(@border-color; @width: 2px; @type: solid;) {
+  border: @border-color @type @width;
+}
+.border-color-hover(@border-color; @width: 2px; @type: solid;) {
+  &:hover,
+  &:active,
+  &:focus,{
+    border: @border-color @type @width;
+  }
+}
+
+.generate-font-s(@stop, @size: 6, @step: 1) when (@size =< @stop) {
+  .font-s-@{size} {
+    font-size: (@size*1px);
+  }
+  .generate-font-s(@stop, (@size + @step), @step);
+}
+
+
+
+

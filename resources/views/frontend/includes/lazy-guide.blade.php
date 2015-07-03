@@ -1,7 +1,7 @@
     <div class="row">
 
         <div class="col-md-10 col-md-offset-1">
-
+            <h1 class="text-gray-light">Uppdaterad: 2015-07-03</h1>
             <div class="panel panel-default">
             <div class="panel-heading"><i class="fa fa-gear fa-spin font-s-16"></i> <a href="{{ url('/lazy') }}">{{ env('APP_URL') }}/lazy</a></div>
 
@@ -14,16 +14,32 @@
                         Samtliga gör att man enkelt, genom att bara lägga till en class på ett objekt, enkelt
                         men kraftfullt kan ge objekt färger/font-size på ett enkelt och bootstrap-liknande sätt.
                         De är alltså de klasser som jag tycker att Bootstrap redan borde ha installerade.
+                        Jag har byggt ut bootstraps egna <code>text-"color"</code> till de grå nyanserna
                     </p>
                     <br>
                     <p>filerna ligger i mappen <code>resources/assets/less/frontend/lazy-stuff/lazy-stuff/</code></p>
+                    <p>Allt hämtas till filen <code>all-my-lazy-stuff.less</code> som sedan importeras (<code>@import</code>) till <code>main.less</code></p>
                 </div>
             </div><!-- panel -->
+            <div class="panel panel-default">
+            <div class="panel-heading">Mixins</div>
+                <div class="panel-body">
+                    <h4><code>lazy-stuff/mixins.less</code></h4>
+                    <p>
+                        Här har jag lagt mina mixins som skapar de olia färg-classerna/storleks-classerna på ett snyggt och effektivt sätt.
+                    </p>
+                </div>
+            </div><!-- panel -->
+
             <div class="panel panel-success">
                 <div class="panel-heading"><i class="fa fa-paint-brush"></i> My lazy color classes</div>
 
                 <div class="panel-body">
-                    <h5><code>resources/assets/less/frontend/lazy-stuff/lazy-stuff/lazy-color.less</code></h5>
+                    <h5><code>resources/assets/less/frontend/lazy-stuff/lazy-stuff/</code></h5>
+                    <h5><code>bg-color.less</code></h5>
+                    <h5><code>border-color.less</code></h5>
+                    <h5><code>text-color.less</code></h5>
+
                     <p>
                         Detta är mina egna färgklasser som jag gjort för att underlätta skapandet av
                         html-kod. Detta gör det enkelt att ändra färger på unika object.
@@ -36,47 +52,47 @@
                     </p>
                     <div class="row">
                         <h3>text-color <small>endast namnet på färg-typen</small></h3>
-                        <pre class="primary col-xs-3">class="primary"</pre>
-                        <pre class="success col-xs-3">class="success"</pre>
-                        <pre class="info col-xs-3">class="info"</pre>
-                        <pre class="warning col-xs-3">class="warning"</pre>
-                        <pre class="danger col-xs-3">class="danger"</pre>
-                        <pre class="white col-xs-3">class="white"</pre>
-                        <pre class="gray-lighter col-xs-3">class="gray-lighter"</pre>
-                        <pre class="gray-light col-xs-3">class="gray-light"</pre>
-                        <pre class="gray col-xs-3">class="gray"</pre>
-                        <pre class="gray-dark col-xs-3">class="gray-dark"</pre>
-                        <pre class="gray-darker col-xs-3">class="gray-darker"</pre>
+                        <pre class="text-primary col-xs-3">class="text-primary"</pre>
+                        <pre class="text-success col-xs-3">class="text-success"</pre>
+                        <pre class="text-info col-xs-3">class="text-info"</pre>
+                        <pre class="text-warning col-xs-3">class="text-warning"</pre>
+                        <pre class="text-danger col-xs-3">class="text-danger"</pre>
+                        <pre class="text-white col-xs-3">class="text-white"</pre>
+                        <pre class="text-gray-lighter col-xs-3">class="text-gray-lighter"</pre>
+                        <pre class="text-gray-light col-xs-3">class="text-gray-light"</pre>
+                        <pre class="text-gray col-xs-3">class="text-gray"</pre>
+                        <pre class="text-gray-dark col-xs-3">class="text-gray-dark"</pre>
+                        <pre class="text-gray-darker col-xs-3">class="text-gray-darker"</pre>
 
                     </div>
                     <div class="row">
                         <h3>background-color <small>namnet på färg-typen *-bg</small></h3>
-                        <pre class="primary-bg col-xs-3">class="primary-bg"</pre>
-                        <pre class="success-bg col-xs-3">class="success-bg"</pre>
-                        <pre class="info-bg col-xs-3">class="info-bg"</pre>
-                        <pre class="warning-bg col-xs-3">class="warning-bg"</pre>
-                        <pre class="danger-bg col-xs-3">class="danger-bg"</pre>
-                        <pre class="white-bg col-xs-3">class="white-bg"</pre>
-                        <pre class="gray-lighter-bg col-xs-3">class="gray-lighter-bg"</pre>
-                        <pre class="gray-light-bg col-xs-3">class="gray-light-bg"</pre>
-                        <pre class="gray-bg col-xs-3">class="gray-bg"</pre>
-                        <pre class="gray-dark-bg col-xs-3">class="gray-dark-bg"</pre>
-                        <pre class="gray-darker-bg col-xs-3">class="gray-darker-bg"</pre>
+                        <pre class="bg-primary col-xs-3">class="bg-primary"</pre>
+                        <pre class="bg-success col-xs-3">class="bg-success"</pre>
+                        <pre class="bg-info col-xs-3">class="bg-info"</pre>
+                        <pre class="bg-warning col-xs-3">class="bg-warning"</pre>
+                        <pre class="bg-danger col-xs-3">class="bg-danger"</pre>
+                        <pre class="bg-white col-xs-3">class="bg-white"</pre>
+                        <pre class="bg-gray-lighter col-xs-3">class="bg-gray-lighter"</pre>
+                        <pre class="bg-gray-light col-xs-3">class="bg-gray-light"</pre>
+                        <pre class="bg-gray col-xs-3">class="bg-gray"</pre>
+                        <pre class="bg-gray-dark col-xs-3">class="bg-gray-dark"</pre>
+                        <pre class="bg-gray-darker col-xs-3">class="bg-gray-darker"</pre>
 
                     </div>
                     <div class="row">
                         <h3>border-color <small>namnet på färg-typen *-border, border-width sätts med less-variabel i <code>lazy-color.less</code></small></h3>
-                        <pre class="primary-border col-xs-3">class="primary-border"</pre>
-                        <pre class="success-border col-xs-3">class="success-border"</pre>
-                        <pre class="info-border col-xs-3">class="info-border"</pre>
-                        <pre class="warning-border col-xs-3">class="warning-border"</pre>
-                        <pre class="danger-border col-xs-3">class="danger-border"</pre>
-                        <pre class="white-bg col-xs-3">class="white-border"</pre>
-                        <pre class="gray-lighter-border col-xs-3">class="gray-lighter-border"</pre>
-                        <pre class="gray-light-border col-xs-3">class="gray-light-border"</pre>
-                        <pre class="gray-border col-xs-3">class="gray-border"</pre>
-                        <pre class="gray-dark-border col-xs-3">class="gray-dark-border"</pre>
-                        <pre class="gray-darker-border col-xs-3">class="gray-darker-border"</pre>
+                        <pre class="border-primary col-xs-3">class="border-primary"</pre>
+                        <pre class="border-success col-xs-3">class="border-success"</pre>
+                        <pre class="border-info col-xs-3">class="border-info"</pre>
+                        <pre class="border-warning col-xs-3">class="border-warning"</pre>
+                        <pre class="border-danger col-xs-3">class="border-danger"</pre>
+                        <pre class="border-white col-xs-3">class="border-white"</pre>
+                        <pre class="border-gray-lighter col-xs-3">class="border-gray-lighter"</pre>
+                        <pre class="border-gray-light col-xs-3">class="border-gray-light"</pre>
+                        <pre class="border-gray col-xs-3">class="border-gray"</pre>
+                        <pre class="border-gray-dark col-xs-3">class="border-gray-dark"</pre>
+                        <pre class="border-gray-darker col-xs-3">class="border-gray-darker"</pre>
                     </div>
 
                 </div>
@@ -92,7 +108,7 @@
                         for($n = 6; $n <= 30; $n++){
                             echo '<p class="font-s-'. $n.'">class="font-s-'. $n.'"</p>';
                         }
-                        for($n = 35; $n <= 80; $n += 5){
+                        for($n = 35; $n <= 90; $n += 5){
                             echo '<p class="font-s-'. $n.'">class="font-s-'. $n.'"</p>';
                         }
 
