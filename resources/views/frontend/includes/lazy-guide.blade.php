@@ -45,9 +45,9 @@
                         <br>
                         Därför kan du på ett element skriva: <code>element-färg element-hover</code>
                     </p>
-                    <pre class="text-primary text-hover col-xs-12 col-sm-6 col-md-4">class="text-primary text-hover"</pre>
-                    <pre class="bg-danger bg-hover col-xs-12 col-sm-6 col-md-4">class="text-primary text-hover"</pre>
-                    <pre class="border-warning border-hover col-xs-12 col-sm-6 col-md-4">class="text-primary text-hover"</pre>
+                    <h4 class="text-primary text-hover col-xs-12 col-sm-6 col-md-4">class="text-primary text-hover"</h4>
+                    <pre class="bg-danger bg-hover col-xs-12 col-sm-6 col-md-4">class="bg-danger bg-hover"</pre>
+                    <pre class="border-warning border-hover col-xs-12 col-sm-6 col-md-4">class="border-warning border-hover"</pre>
                     <h4 class="col-xs-12">Maxat exempel</h4>
                     <pre class="text-gray-light text-white-hover bg-gray-lighter bg-hover border-success border-danger-hover col-xs-12 col-sm-12">class="text-gray-light text-white-hover bg-gray-lighter bg-hover border-success border-danger-hover"</pre>
                 </div>
