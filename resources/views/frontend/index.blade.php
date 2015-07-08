@@ -7,7 +7,7 @@
         }
         .siffror    {
             max-width: 500px;
-            margin-top: 15px;
+            margin-top: 35px;
         }
         .logo   {
             max-width: 1000px;
