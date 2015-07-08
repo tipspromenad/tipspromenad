@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tip extends Model
 {
+    public $fillable = ['name', 'desciption'];
+    public function snippet($attr, $max = 10, $strip = true)
+    {
+        $string = $this->$attr;
+        ($strip) ? $string = strip_tags($string) : '';
+        $snippet = substr($string, 0, $max);
+        $snippet .= "...";
+        return $snippet;
+    }
+
     /**
      * en tipspromenad hasMany questions
      * @return Question::class (alla frågor som är sparade till tipspromenaden)
