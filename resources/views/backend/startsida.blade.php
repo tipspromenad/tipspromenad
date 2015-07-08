@@ -8,8 +8,7 @@
 @endsection
 
 @section('breadcrumbs')
-    <li><a href="{!!route('backend.dashboard')!!}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-    <li class="active">Here</li>
+    <li><a href="{!!route('backend.dashboard')!!}"><i class="fa fa-dashboard"></i> Startsida</a></li>
 @endsection
 
 @section('content')

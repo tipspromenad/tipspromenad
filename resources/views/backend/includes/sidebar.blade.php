@@ -31,8 +31,10 @@
               <ul class="sidebar-menu">
                 <li class="header">General</li>
                 <!-- Optionally, you can add icons to the links -->
-                <li><a href="{!!route('backend.dashboard')!!}"><span>Dashboard</span></a></li>
-                <li><a href="{!!url('admin/access/users')!!}"><span>User Management</span></a></li>
+                <li class="{{ Active::pattern('admin/startsida') }}"><a href="{!!route('backend.dashboard')!!}"><span>Startsida</span></a></li>
+                <li class="{{ Active::pattern('admin/access*') }}"><a href="{!!url('admin/access/users')!!}"><span>Hantera användare</span></a></li>
+                <li class="{{ Active::pattern('admin/tipspromenad*') }}"><a href="{{ action('Backend\TipsController@index') }}"><span>Tipspromenader</span></a></li>
+
               </ul><!-- /.sidebar-menu -->
             </section>
             <!-- /.sidebar -->
