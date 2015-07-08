@@ -1,0 +1,77 @@
+/* *************************************** */
+/* text-color */
+.generate-text-color(@text-color, @name-color) {
+  .text-@{name-color}{
+    color: @text-color;
+  }
+  .text-@{name-color}.text-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        color: darken(@text-color, 10%);
+      }
+  }
+  .text-@{name-color}-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        color: @text-color;
+      }
+    }
+}
+/* *************************************** */
+/* bg-color */
+.generate-bg-color(@bg-color, @name-color) {
+  .bg-@{name-color}{
+    background-color: @bg-color;
+  }
+  .bg-@{name-color}.bg-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        background-color: darken(@bg-color, 10%);
+      }
+  }
+  .bg-@{name-color}-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        background-color: @bg-color;
+      }
+    }
+}
+
+/* *************************************** */
+/* border-color */
+.generate-border-color(@border-color; @name-color; @width: 2px; @type: solid;) {
+  .border-@{name-color}{
+    border: @border-color @type @width;
+  }
+  .border-@{name-color}.border-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        border: darken(@border-color, 10%) @type @width;
+      }
+  }
+  .border-@{name-color}-hover{
+      &:hover,
+      &:active,
+      &:focus,{
+        border: @border-color @type @width;
+      }
+    }
+}
+
+/* *************************************** */
+/* border-color */
+.generate-font-s(@stop, @size: 6, @step: 1) when (@size =< @stop) {
+  .font-s-@{size} {
+    font-size: (@size*1px);
+  }
+  .generate-font-s(@stop, (@size + @step), @step);
+}
+
+
+
+
