@@ -41,7 +41,7 @@
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <div class="img-responsive text-center">
-                        <img src="{!!asset('img/frontend/instructions.svg')!!}" alt="Steg för steg." />
+                        <img src="{!!asset('img/frontend/instructions2.svg')!!}" alt="Steg för steg." />
                     </div>
                 </div><!--// col -->
             </div><!--// row -->
