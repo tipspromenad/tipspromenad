@@ -22,7 +22,9 @@
             padding: 30px 0;
         }
         .knappar1{
-            margin: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-shadow: 3px 3px 8px #777777;
         }
     </style>
 @endsection
