@@ -21,12 +21,15 @@
             position: relative;
             padding: 30px 0;
         }
+        .knappar1{
+            margin: 10px;
+        }
     </style>
 @endsection
 
 @section('content')
 
-    <!-- Section konferensbild -->
+    <!-- Section -->
     <section class="bakgrundsbild">
         <div class="container" >
             <div class="row">
@@ -47,17 +50,21 @@
                 </div><!--// col -->
             </div><!--// row -->
         </div><!--// container -->
-    </section> <!--// konferensbild -->
+    </section> <!--// sektion -->
 
-    <!-- Section konferensbild -->
+    <!-- Section sektion -->
     <section class="bg-success">
         <div class="container" >
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                    <button type="button" class="btn btn-lg btn-primary knappar1">Skapa tipspromenad</button>
+                </div><!--// col -->
+                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                    <button type="button" class="btn btn-lg btn-primary knappar1">Gå tipspromenad</button>
                 </div><!--// col -->
             </div><!--// row -->
         </div><!--// container -->
-    </section> <!--// konferensbild -->
+    </section> <!--// sektion -->
 
 <div class="container-fluid">
     <div class="row">
