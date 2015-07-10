@@ -7,7 +7,9 @@ elixir(function(mix) {
         // Copy webfont files from /vendor directories to /public directory.
         .copy('vendor/fortawesome/font-awesome/fonts', 'public/fonts')
         .copy('vendor/twbs/bootstrap/fonts', 'public/fonts')
-
+        /**
+         * Frontend
+         */
         .less([ // Process front-end stylesheets
             'frontend/main.less'
         ], 'resources/assets/css/frontend')
@@ -26,6 +28,22 @@ elixir(function(mix) {
             // later on i will put all Vue-scripts here aswell.
         ], 'public/js/vue.js', 'resources/assets/js/frontend/VueJS')
 
+        /**
+         * Skapa
+         */
+        .less([
+            'frontend/skapa/skapa-all.less'
+        ], 'public/css/skapa')
+        .scripts([
+            '../../plugins.js',
+            'vendor/jquery.slimscroll.min.js',
+            'vendor/jquery.truncate.min.js',
+            'main.js'
+        ], 'public/js/skapa.js', 'resources/assets/js/frontend/skapa')
+
+        /**
+         * Backend
+         */
         .less([ // Process back-end stylesheets
             'backend/AdminLTE.less',
         ], 'resources/assets/css/backend')
@@ -41,5 +59,12 @@ elixir(function(mix) {
         ], 'public/js/backend.js', 'resources/assets/js')
 
         // Apply version control
-        .version(["css/frontend.css", "js/frontend.js", "css/backend.css", "js/backend.js"]);
+        .version([
+                    // frontend
+                    "css/frontend.css", "js/frontend.js",
+                    // skapa
+                    "css/skapa/skapa-all.css", "js/skapa.js",
+                    // backend
+                    "css/backend.css", "js/backend.js"
+                ]);
 });
