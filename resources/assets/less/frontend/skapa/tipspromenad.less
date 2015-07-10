@@ -1,0 +1,30 @@
+#toggle-offcanvas-wrapper{
+      position: absolute;
+      left: -58px;
+      top: 20px;
+      width: 10px;
+    }
+#toggle-offcanvas{
+    @toggle-offcanvas-border-radius: 6px;
+    z-index: 3;
+    height: 40px;
+    width: 45px;
+    .bg-gray-lighter;
+    border-top: 2px solid @gray-lighter;
+    border-bottom: 2px solid @gray-lighter;
+    border-left: 2px solid @gray-lighter;
+
+    -webkit-border-top-left-radius: @toggle-offcanvas-border-radius;
+    -webkit-border-bottom-left-radius: @toggle-offcanvas-border-radius;
+    -moz-border-radius-topleft: @toggle-offcanvas-border-radius;
+    -moz-border-radius-bottomleft: @toggle-offcanvas-border-radius;
+    border-top-left-radius: @toggle-offcanvas-border-radius;
+    border-bottom-left-radius: @toggle-offcanvas-border-radius;
+
+    i {
+        padding-top: 7px;
+        padding-left: 10px;
+        color: @gray-light;
+        .font-s-22;
+    }
+}

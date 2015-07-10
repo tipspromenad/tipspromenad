@@ -13,6 +13,7 @@
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
 					<li>{!! link_to('lazy', 'Lazy-guide') !!}</li>
+					<li>{!! link_to('skapa', 'Skapa [Beta]') !!}</li>
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">

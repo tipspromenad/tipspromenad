@@ -4,7 +4,11 @@
  * Frontend Controllers
  */
 Route::get('/', ['as' => 'home', 'uses' => 'FrontendController@index']);
-Route::get('macros', 'FrontendController@macros');
+
+Route::get('skapa', function ()
+{
+    return view('frontend/skapa/tipspromenad');
+});
 
 Route::get('lazy', function ()
 {
