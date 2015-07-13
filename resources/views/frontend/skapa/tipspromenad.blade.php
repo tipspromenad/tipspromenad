@@ -20,6 +20,11 @@
        <div class="row">
         <div class="col-sm-6">
             <h1>Lorem ipsum</h1>
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+              Launch demo modal
+            </button>
+
           </div>
           <div class="col-sm-6">
           <br>
@@ -214,7 +219,6 @@
     </div><!--/left-->
   </div><!--/row-->
 </div><!--/.container-->
-
 @endsection
 
 
