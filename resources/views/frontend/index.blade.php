@@ -37,12 +37,12 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <div class="siffror center-block">
-                        <img src="{!!asset('img/frontend/ettakrysstva.svg')!!}" class=”img-responsive" alt=”Etta, kryss, två!" />
+                        <img src="{!!asset('img/frontend/ettakrysstva.svg')!!}" class="img-responsive" alt="Etta, kryss, två!" />
                     </div>
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <div class="logo center-block">
-                        <a href="http://tipspromenad.dev" title="Klicka för att komma till startsidan."><img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class=”img-responsive" alt=”tipspromenad.NU" /></a>
+                        <a href="http://tipspromenad.dev" title="Klicka för att komma till startsidan."><img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class="img-responsive" alt="tipspromenad.NU" /></a>
                     </div>
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
