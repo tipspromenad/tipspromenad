@@ -4492,8 +4492,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   }
 }
 .navbar-default {
-  background-color: rgba(255, 255, 255, 0.75);
-  border-color: #eeeeee;
+  background-color: #ffffff;
+  border-color: transparent;
 }
 .navbar-default .navbar-brand {
   color: #7bc3ed;
@@ -4512,13 +4512,13 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
   color: #219ae1;
-  background-color: #eeeeee;
+  background-color: transparent;
 }
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
   color: #555555;
-  background-color: rgba(238, 238, 238, 0.75);
+  background-color: #eeeeee;
 }
 .navbar-default .navbar-nav > .disabled > a,
 .navbar-default .navbar-nav > .disabled > a:hover,
@@ -4538,12 +4538,12 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
-  border-color: #eeeeee;
+  border-color: transparent;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
-  background-color: rgba(238, 238, 238, 0.75);
+  background-color: #eeeeee;
   color: #555555;
 }
 @media (max-width: 767px) {
@@ -4553,13 +4553,13 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
     color: #219ae1;
-    background-color: #eeeeee;
+    background-color: transparent;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
     color: #555555;
-    background-color: rgba(238, 238, 238, 0.75);
+    background-color: #eeeeee;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
   .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover,
@@ -5843,7 +5843,7 @@ button.close {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1050;
+  z-index: 1200;
   -webkit-overflow-scrolling: touch;
   outline: 0;
 }
@@ -6708,8 +6708,8 @@ button.close {
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../../../fonts/fontawesome-webfont.eot?v=4.3.0');
-  src: url('../../../fonts/fontawesome-webfont.eot?#iefix&v=4.3.0') format('embedded-opentype'), url('../../../fonts/fontawesome-webfont.woff2?v=4.3.0') format('woff2'), url('../../../fonts/fontawesome-webfont.woff?v=4.3.0') format('woff'), url('../../../fonts/fontawesome-webfont.ttf?v=4.3.0') format('truetype'), url('../../../fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular') format('svg');
+  src: url('../../fonts/fontawesome-webfont.eot?v=4.3.0');
+  src: url('../../fonts/fontawesome-webfont.eot?#iefix&v=4.3.0') format('embedded-opentype'), url('../../fonts/fontawesome-webfont.woff2?v=4.3.0') format('woff2'), url('../../fonts/fontawesome-webfont.woff?v=4.3.0') format('woff'), url('../../fonts/fontawesome-webfont.ttf?v=4.3.0') format('truetype'), url('../../fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -9120,76 +9120,6 @@ body {
 .border-gray-darker-hover:focus {
   border: #222222 solid 2px;
 }
-/*
- * Style tweaks
- * --------------------------------------------------
- */
-html,
-body {
-  overflow-x: hidden;
-  /* Prevent scroll on narrow devices */
-  margin-top: 0;
-}
-/*
- * Off Canvas
- * --------------------------------------------------
- */
-@media screen and (max-width: 767px) {
-  .row-offcanvas {
-    position: relative;
-    transition: all 0.25s ease-out;
-  }
-  .row-offcanvas-right {
-    right: 0;
-  }
-  .row-offcanvas-right .sidebar-offcanvas {
-    right: -65%;
-    /* 6 columns */
-  }
-  .row-offcanvas-right.active {
-    right: 65%;
-    /* 6 columns */
-  }
-  .sidebar-offcanvas {
-    position: absolute;
-    top: 0;
-    width: 65%;
-    /* 6 columns */
-  }
-}
-.canvas-full-height {
-  height: 100%;
-}
-.affix {
-  position: fixed;
-  top: 15px;
-}
-#toggle-offcanvas-wrapper {
-  position: absolute;
-  left: -58px;
-  top: 20px;
-  width: 10px;
-}
-#toggle-offcanvas {
-  z-index: 3;
-  height: 40px;
-  width: 45px;
-  background-color: #eeeeee;
-  border-top: 2px solid #eeeeee;
-  border-bottom: 2px solid #eeeeee;
-  border-left: 2px solid #eeeeee;
-  -webkit-border-top-left-radius: 6px;
-  -webkit-border-bottom-left-radius: 6px;
-  -moz-border-radius-topleft: 6px;
-  -moz-border-radius-bottomleft: 6px;
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
-#toggle-offcanvas i {
-  padding-top: 7px;
-  padding-left: 10px;
-  color: #777777;
-  font-size: 22px;
-}
 
-/*# sourceMappingURL=skapa-all.css.map */
+/*# sourceMappingURL=main.css.map */
+/*# sourceMappingURL=frontend.css.map */
