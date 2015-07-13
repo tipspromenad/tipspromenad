@@ -41,7 +41,7 @@
                 <h4 class="modal-title">Skapa tipspromenad</h4>
               </div>
               <div class="modal-body">
-
+                <p>HALLÅ</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -78,7 +78,7 @@
 
     <!-- Section sektion -->
     <section class="bg-success">
-        <div class="container" >
+        <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#skapatipsmodal">Skapa tipspromenad</button>
@@ -90,4 +90,15 @@
         </div><!--// container -->
     </section> <!--// sektion -->
 
+@endsection
+
+@section('after-scripts-end')
+    <script>
+        $('.modal').on('shown.bs.modal', function() {
+          //Make sure the modal and backdrop are siblings (changes the DOM)
+          $(this).before($('.modal-backdrop'));
+          //Make sure the z-index is higher than the backdrop
+          $(this).css("z-index", parseInt($('.modal-backdrop').css('z-index')) + 1);
+        });
+    </script>
 @endsection
