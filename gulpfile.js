@@ -1,4 +1,5 @@
 var elixir = require('laravel-elixir');
+require('laravel-elixir-livereload');
 /**
  * Uncomment for LESS version
  */
@@ -66,5 +67,8 @@ elixir(function(mix) {
                     "css/skapa/skapa-all.css", "js/skapa.js",
                     // backend
                     "css/backend.css", "js/backend.js"
-                ]);
+                ])
+
+        .livereload();
+
 });

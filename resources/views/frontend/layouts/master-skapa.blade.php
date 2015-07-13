@@ -32,6 +32,8 @@
 
         @yield('content')
 
+        @include('frontend.includes.footer')
+
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{asset('js/vendor/jquery-1.11.2.min.js')}}"><\/script>')</script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
@@ -39,6 +41,12 @@
         @yield('before-scripts-end')
         {!! HTML::script(elixir('js/skapa.js')) !!}
         @yield('after-scripts-end')
+
+        @if ( Config::get('app.debug') )
+          <script type="text/javascript">
+            document.write('<script src="//localhost:35729/livereload.js?snipver=1" type="text/javascript"><\/script>')
+          </script>
+        @endif
         @include('includes.partials.ga')
     </body>
 </html>

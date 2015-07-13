@@ -173,7 +173,7 @@
            <td>Column 5</td>
          </tr>
        </table>
-    </div><!--/.col-xs-12.col-sm-9-->
+    </div><!--/.col-xs-12.col-sm-8-->
 
     <!--left-->
     <div class="col-sm-4 canvas-full-height" id="sidebar">
@@ -183,28 +183,29 @@
       </div>
         <div class="">
           <h1 class="text-gray-light" style="white-space: pre" id="tipspromenad-name">Min tipspromenad är asd asd asd</h1>
-          <button class="btn btn-info btn-xs" style="position: absolute; right: 10px; top: 10px;"><i class="fa fa-pencil"></i></button>
+          <button class="btn btn-info btn-xs" style="position: absolute; right: 10px; top: 10px;">
+            <i class="fa fa-pencil"></i>
+          </button>
         </div>
           <div id="ulScroll">
          <div class="list-group">
           <div class="list-group-item">
             <div class="row">
               <div class="col-xs-8 col-md-9">
-                <h4 class="list-group-item-heading">List group item heading</h4>
-                <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate, quia?</p>
+                <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur molestias dicta, incidunt rem accusamus quae illo perspiciatis beatae eaque expedita.</p>
               </div>
               <div class="col-xs-4 col-md-3 text-gray-light">
-                <i class="fa fa-ellipsis-v fa-3x"></i>
-                <i class="fa fa-arrows-v fa-3x pull-right"></i>
+                <i class="fa fa-ellipsis-v fa-2x"></i>
+                <span>
+                  <i class="fa fa-arrows-v fa-2x pull-right"></i>
+                </span>
               </div>
             </div>
           </div>
            <div class="list-group-item">
-             <h4 class="list-group-item-heading">List group item heading</h4>
              <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate, quia?</p>
            </div>
            <div class="list-group-item">
-             <h4 class="list-group-item-heading">List group item heading</h4>
              <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate, quia?</p>
            </div>
          </div>
@@ -212,11 +213,6 @@
       </div>
     </div><!--/left-->
   </div><!--/row-->
-  <hr>
-  <footer>
-    <p>&copy; Company 2014</p>
-  </footer>
-
 </div><!--/.container-->
 
 @endsection
