@@ -5222,7 +5222,7 @@ a.thumbnail.active {
   padding: 10px 15px;
   margin-bottom: -1px;
   background-color: transparent;
-  border: 1px solid #dddddd;
+  border: 1px solid #cfcfcf;
 }
 .list-group-item:first-child {
   border-top-right-radius: 0px;
@@ -8511,11 +8511,12 @@ button.close {
 .list-group-item {
   position: relative;
   display: block;
-  padding: 5px 5px;
-  margin-bottom: -1px;
+  padding: 0px;
+  margin-top: 0;
+  margin-bottom: 6px;
   background-color: transparent;
-  border-top: 1px solid #dddddd;
-  border-bottom: 1px solid #dddddd;
+  border-top: 3px solid #cfcfcf;
+  border-bottom: 0px solid #cfcfcf;
   border-left: 0px;
   border-right: 0px;
 }
@@ -9400,6 +9401,28 @@ body {
   padding-left: 10px;
   color: #777777;
   font-size: 22px;
+}
+.question-number {
+  width: 20px;
+  padding-right: 8px;
+  padding-top: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.question-right-answer {
+  left: 0px;
+  margin-top: 4px;
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  background-color: #7bc3ed;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 10px;
+}
+a.question-right-answer:hover,
+a.question-right-answer:focus {
+  background-color: #4eafe7;
 }
 
 /*# sourceMappingURL=skapa-all.css.map */
