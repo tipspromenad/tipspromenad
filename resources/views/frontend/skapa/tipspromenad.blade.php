@@ -2,6 +2,23 @@
 
 @section('after-styles-end')
     <style type="text/css">
+    .trunkated-item{
+      padding-top: 4px;
+      height: 36px;
+      display:block;
+      position: relative;
+      overflow:hidden;
+      z-index: 1040;
+    }
+    .ettkrysstva-list{
+      margin-top: 15px;
+      padding-left: 18px;
+      font-size: 10px;
+    }
+    .question-buttons{
+      margin-top: 2px;
+    }
+
     </style>
 @endsection
 
@@ -20,11 +37,6 @@
        <div class="row">
         <div class="col-sm-6">
             <h1>Lorem ipsum</h1>
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-              Launch demo modal
-            </button>
-
           </div>
           <div class="col-sm-6">
           <br>
@@ -194,25 +206,96 @@
         </div>
           <div id="ulScroll">
          <div class="list-group">
-          <div class="list-group-item">
+          <div class="list-group-item trunkated-item">
             <div class="row">
-              <div class="col-xs-8 col-md-9">
-                <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur molestias dicta, incidunt rem accusamus quae illo perspiciatis beatae eaque expedita.</p>
+              <div class="col-xs-8 col-sm-7 col-md-8">
+              <div class="question-number pull-left">1.</div>
+                <p class="list-group-item-text trunkated-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequuntur molestias dicta, incidunt rem accusamus quae illo perspiciatis beatae eaque expedita.</p>
               </div>
-              <div class="col-xs-4 col-md-3 text-gray-light">
-                <i class="fa fa-ellipsis-v fa-2x"></i>
+              <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
+                <div class="question-right-answer pull-left">X</div>
+                <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x"></i>
                 <span>
-                  <i class="fa fa-arrows-v fa-2x pull-right"></i>
+                  <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right"></i>
                 </span>
               </div>
-            </div>
-          </div>
-           <div class="list-group-item">
-             <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate, quia?</p>
-           </div>
-           <div class="list-group-item">
-             <p class="list-group-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate, quia?</p>
-           </div>
+              <div class="col-xs-12 trunkated-text">
+                <ol class="ettkrysstva-list">
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, velit.</li>
+                  <li>Lorem ipsum dolor sit amet.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit quae eligendi unde saepe, assumenda, fugit.</li>
+                </ol>
+              </div><!-- /.col-xs-12 -->
+            </div><!-- /.row -->
+          </div><!-- /.list-group-item -->
+          <div class="list-group-item trunkated-item">
+            <div class="row">
+              <div class="col-xs-8 col-sm-7 col-md-8">
+              <div class="question-number pull-left">2.</div>
+                <p class="list-group-item-text trunkated-text">Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+              </div>
+              <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
+                <div class="question-right-answer pull-left">2</div>
+                <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x"></i>
+                <span>
+                  <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right"></i>
+                </span>
+              </div>
+              <div class="col-xs-12 trunkated-text">
+                <ol class="ettkrysstva-list">
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, velit.</li>
+                  <li>Lorem ipsum dolor sit amet.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit quae eligendi unde saepe, assumenda, fugit.</li>
+                </ol>
+              </div><!-- /.col-xs-12 -->
+            </div><!-- /.row -->
+          </div><!-- /.list-group-item -->
+
+          <div class="list-group-item trunkated-item">
+            <div class="row">
+              <div class="col-xs-8 col-sm-7 col-md-8">
+              <div class="question-number pull-left">3.</div>
+                <p class="list-group-item-text trunkated-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ex provident officiis cum, nihil dolore suscipit.</p>
+              </div>
+              <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
+                <div class="question-right-answer pull-left">X</div>
+                <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x"></i>
+                <span>
+                  <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right"></i>
+                </span>
+              </div>
+              <div class="col-xs-12 trunkated-text">
+                <ol class="ettkrysstva-list">
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, velit.</li>
+                  <li>Lorem ipsum dolor sit amet.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit quae eligendi unde saepe, assumenda, fugit.</li>
+                </ol>
+              </div><!-- /.col-xs-12 -->
+            </div><!-- /.row -->
+          </div><!-- /.list-group-item -->
+
+          <div class="list-group-item trunkated-item">
+            <div class="row">
+              <div class="col-xs-8 col-sm-7 col-md-8">
+              <div class="question-number pull-left">4.</div>
+                <p class="list-group-item-text trunkated-text">Lorem ipsum dolor sit amet, consectetur.</p>
+              </div>
+              <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
+                <div class="question-right-answer pull-left">1</div>
+                <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x"></i>
+                <span>
+                  <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right"></i>
+                </span>
+              </div>
+              <div class="col-xs-12 trunkated-text">
+                <ol class="ettkrysstva-list">
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, velit.</li>
+                  <li>Lorem ipsum dolor sit amet.</li>
+                  <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit quae eligendi unde saepe, assumenda, fugit.</li>
+                </ol>
+              </div><!-- /.col-xs-12 -->
+            </div><!-- /.row -->
+          </div><!-- /.list-group-item -->
          </div>
         </div>
       </div>
@@ -224,8 +307,25 @@
 
 @section('after-scripts-end')
 <script>
+$('.trunkated-item').click(function(e) {
+  if($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')){
+    var h = $(this)[0].scrollHeight;
+
+    if($(this).hasClass('hide-trunkated')) {
+        $(this).animate({height:40},200)
+        .removeClass('hide-trunkated')
+        .addClass('trunkated');
+      } else {
+        console.log('scrollHeight: ' + h);
+        $(this).animate({height:h},200)
+        .addClass('hide-trunkated')
+        .removeClass('trunkated');
+      }
+  }
+});
+
 $(function() {
-  $('#tipspromenad-name').truncate({
+    $('#tipspromenad-name').truncate({
     width: 'auto',
     token: '&hellip;',
     side: 'right',
