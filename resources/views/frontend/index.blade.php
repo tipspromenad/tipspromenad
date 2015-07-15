@@ -26,6 +26,20 @@
             margin-bottom: 10px;
             box-shadow: 3px 3px 8px #777777;
         }
+        .modal-header {
+            padding:9px 15px;
+            border-bottom:1px solid #eee;
+            background-color: #7bc3ed;
+            -webkit-border-top-left-radius: 5px;
+            -webkit-border-top-right-radius: 5px;
+            -moz-border-radius-topleft: 5px;
+            -moz-border-radius-topright: 5px;
+             border-top-left-radius: 5px;
+             border-top-right-radius: 5px;
+         }
+         #skapatipsmodal .modal-dialog  {
+
+        }
     </style>
 @endsection
 
@@ -81,11 +95,35 @@
               <div class="modal-body">
                 <div class="container-fluid">
                     <row>
-                        <div class="col-xs-12 col-sm-7 bg-success">
-                            <h4>Med konto</h4>
+                        <div class="col-xs-12 col-sm-7 bg-white">
+                            <h4 class="text-primary text-center">Med konto</h4>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <button class="btn btn-primary knappar1 center-block"><i class="fa fa-facebook text-white"> Logga in med Facebook</i></button>
+                                <button class="btn btn-primary knappar1 center-block"><i class="fa fa-google text-white"> Logga in med Google</i></button>
+
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                    <input id="username" name="" type="text" placeholder="E-postadress" class="form-control input-md">
+                                    </div>
+                                    <div class="col-xs-12">
+                                    <input id="password" name="" type="password" placeholder="Lösenord" class="form-control input-md">
+                                    </div>
+                                    <button type="button" value=" Send" class="btn btn-primary knappar1 center-block" type="submit" id="submit"><i class="fa fa-sign-in"></i> Logga in</button>
+                                </div>
+                                <div class="col-xs-12">
+                                    <ul>
+                                        <li class="fa fa-check text-success"></li>
+                                        <li class="fa fa-check text-success"></li>
+                                        <li class="fa fa-check text-success"></li>
+                                        <li class="fa fa-check text-success"></li>
+                                        <li class="fa fa-check text-success"></li>
+                                    </ul>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="col-xs-12 col-sm-5 bg-warning">
-                            <h4>Utan konto</h4>
+                            <h4 class="text-primary text-center">Utan konto</h4>
                         </div>
                     </row>
                 </div>
