@@ -9,7 +9,7 @@ $(function () {
 /* activate sidebar */
 $('#sidebarAffix').affix({
   offset: {
-    top: 63,
+    top: 60,
     bottom: 80
   }
 });
@@ -27,7 +27,7 @@ function checkSidebarCanvas () {
    $sidebar.removeClass("col-xs-6 sidebar-offcanvas affix-top bg-gray-lighter");
  }
  else if ($(window).width() < 767) {
-   $sidebar.addClass("col-xs-6 sidebar-offcanvas affix-top bg-gray-lighter");
+   $sidebar.addClass("sidebar-offcanvas bg-gray-lighter affix-top");
  }
 }
 checkSidebarCanvas();

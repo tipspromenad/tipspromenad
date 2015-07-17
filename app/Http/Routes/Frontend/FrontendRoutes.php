@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Frontend Controllers
  */
@@ -7,7 +6,7 @@ Route::get('/', ['as' => 'home', 'uses' => 'FrontendController@index']);
 
 Route::get('skapa', function ()
 {
-    return view('frontend/skapa/tipspromenad');
+    return view('frontend/skapa/tipspromenad', compact('faker'));
 });
 
 Route::get('lazy', function ()
