@@ -8723,10 +8723,16 @@ button.list-group-item-danger.active:focus {
   background-size: cover;
   height: 480px;
 }
+.skiljestreck {
+  border-right: none;
+}
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
   .bakgrundsbild {
     height: 550px;
+  }
+  .skiljestreck {
+    border-right: 1px solid #ebebeb;
   }
 }
 /* Medium devices (desktops, 992px and up) */
@@ -8734,11 +8740,17 @@ button.list-group-item-danger.active:focus {
   .bakgrundsbild {
     height: 600px;
   }
+  .skiljestreck {
+    border-right: 1px solid #ebebeb;
+  }
 }
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
   .bakgrundsbild {
     height: 660px;
+  }
+  .skiljestreck {
+    border-right: 1px solid #ebebeb;
   }
 }
 body {
