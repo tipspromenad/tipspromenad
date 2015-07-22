@@ -8740,17 +8740,11 @@ button.list-group-item-danger.active:focus {
   .bakgrundsbild {
     height: 600px;
   }
-  .skiljestreck {
-    border-right: 1px solid #ebebeb;
-  }
 }
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
   .bakgrundsbild {
     height: 660px;
-  }
-  .skiljestreck {
-    border-right: 1px solid #ebebeb;
   }
 }
 body {
