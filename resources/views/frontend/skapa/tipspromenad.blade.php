@@ -3,6 +3,14 @@
 @section('after-styles-end')
     <style type="text/css">
     .trunkated-item{
+      height: 38px;
+      display:block;
+      position: relative;
+      overflow:hidden;
+      z-index: 1040;
+    }
+    .fragebanken-trunkated-question{
+      cursor: pointer;
       padding-top: 4px;
       height: 38px;
       display:block;
@@ -74,11 +82,31 @@ $faker = Faker\Factory::create();
               @for($i = 0; $i < 20; $i++)
                 <tr>
                   <td>
-                    <div class="btn btn-success btn-xs"><i class="fa fa-plus"></i></div>
+                    <div class="btn btn-primary btn-xs"><i class="fa fa-plus"></i></div>
                     <div class="btn btn-danger btn-xs"><i class="fa fa-minus"></i></div>
                   </td>
                   <td>
-                    {{ $faker->sentence($nbWords = $faker->numberBetween($min = 10, $max = 35))}}
+
+                    <div class="fragebanken-trunkated-question">
+                      <div class="trunkated-text">
+                        {{ $faker->sentence($nbWords = $faker->numberBetween($min = 10, $max = 35))}}
+                        <ol class="ettkrysstva-list-lg">
+                          <li class="ettkrysstva-list-item-lg">
+                              {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 15)) }}
+                          </li>
+                          <li class="ettkrysstva-list-item-lg">
+                          Här är en nestad lista innuti denna &lt;li&gt;
+                          <ul>
+                            <li>nested list 1</li>
+                            <li>nested list 2</li>
+                            <li>nested list 3</li>
+                          </ul></li>
+                          <li class="ettkrysstva-list-item-lg">
+                            {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 8)) }}
+                          </li>
+                        </ol>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               @endfor
