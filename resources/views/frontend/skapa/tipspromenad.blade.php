@@ -50,6 +50,7 @@ $faker = Faker\Factory::create();
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane" id="tab-ny-fraga">
           <h1>Ny fråga</h1>
+          <h3>Här lägger man till ny fråga</h3>
         </div><!--  /.tab-ny-fraga -->
 
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
