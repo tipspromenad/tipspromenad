@@ -38,7 +38,7 @@ $faker = Faker\Factory::create();
 <div class="container">
   <div class="row row-offcanvas row-offcanvas-right">
     <div class="col-xs-12 col-sm-8">
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cumque, laudantium reiciendis distinctio. Repellat laudantium odio debitis doloremque velit qui nisi, est non ipsa. Consequuntur, debitis!</p>
+      <p>lorem ipsum dolor sit amet, consectetur adipisicing elit. cumque, laudantium reiciendis distinctio. repellat laudantium odio debitis doloremque velit qui nisi, est non ipsa. consequuntur, debitis!</p>
       <br>
       <!-- Nav tabs -->
       <ul class="nav nav-tabs nav-justified" role="tablist">
@@ -55,7 +55,7 @@ $faker = Faker\Factory::create();
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
         <div class="row">
           <div class="col-sm-6">
-              <h1>Lorem ipsum</h1>
+              <h1>Välj fråga från frågebanken</h1>
           </div>
           <div class="col-sm-6">
             <br>
