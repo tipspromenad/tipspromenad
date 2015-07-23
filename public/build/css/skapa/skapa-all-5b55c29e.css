@@ -9474,10 +9474,12 @@ ali.ettkrysstva-list-item:before:hover,
 ali.ettkrysstva-list-item:before:focus {
   background-color: #4eafe7;
 }
-li.ettkrysstva-list-item:nth-child(2):before {
+li.ettkrysstva-list-item:nth-child(2):before,
+li.ettkrysstva-list-item-lg:nth-child(2):before {
   content: "X";
 }
-li.ettkrysstva-list-item:nth-child(3):before {
+li.ettkrysstva-list-item:nth-child(3):before,
+li.ettkrysstva-list-item-lg:nth-child(3):before {
   content: "2";
 }
 .ettkrysstva-list-lg {

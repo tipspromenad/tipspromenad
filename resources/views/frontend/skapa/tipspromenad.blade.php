@@ -3,6 +3,7 @@
 @section('after-styles-end')
     <style type="text/css">
     .trunkated-item{
+      cursor: pointer;
       height: 38px;
       display:block;
       position: relative;
@@ -25,7 +26,9 @@
       width: 100%;
       padding: 5px 15px;
     }
-
+    .dropdown {
+          position: absolute;
+        }
     </style>
 @endsection
 
@@ -83,7 +86,7 @@ $faker = Faker\Factory::create();
                 <tr>
                   <td>
                     <div class="btn btn-primary btn-xs"><i class="fa fa-plus"></i></div>
-                    <div class="btn btn-danger btn-xs"><i class="fa fa-minus"></i></div>
+                    <div class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></div>
                   </td>
                   <td>
 
@@ -148,7 +151,16 @@ $faker = Faker\Factory::create();
                     </div>
                     <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
                       <div class="question-right-answer pull-left">{{ $faker->randomElement($array = array ('1','X','2')) }}</div>
-                      <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x"></i>
+                      <div class="btn-group ">
+                          <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                        <ul class="dropdown-menu" style="z-index: 10000;">
+                          <li><a href="#">Action</a></li>
+                          <li><a href="#">Another action</a></li>
+                          <li><a href="#">Something else here</a></li>
+                          <li role="separator" class="divider"></li>
+                          <li><a href="#">Separated link</a></li>
+                        </ul>
+                      </div>
                       <span>
                         <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right" style="margin-right: 8px;"></i>
                       </span>
@@ -185,6 +197,7 @@ $faker = Faker\Factory::create();
 
 @section('after-scripts-end')
 <script>
+
 $('.fragebanken-trunkated-question').click(function(e) {
   if($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')){
     var h = $(this)[0].scrollHeight;

@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Tip;
+use App\Tipspromenad;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,11 +10,11 @@ class Question extends Model
 {
     /**
      * a question can belong to many tipspromenader
-     * @return Tip::class (all the tipspromenader where the question is added)
+     * @return Tipspromenad::class (all the tipspromenader where the question is added)
      */
-    public function tips()
+    public function tipspromenader()
     {
-        return $this->belongsToMany(Tip::class)->withTimestamps();
+        return $this->belongsToMany(Tipspromenad::class)->withTimestamps();
     }
 
     /**

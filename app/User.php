@@ -1,6 +1,6 @@
 <?php namespace App;
 
-use App\Tip;
+use App\Tipspromenad;
 use App\Question;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -84,11 +84,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
 	/**
 	 * alla tipspromenader som är skapade/associerade med user
-	 * @return Tip::class (alla associerade tipspromenader)
+	 * @return Tipspromenad::class (alla associerade tipspromenader)
 	 */
-	public function tips()
+	public function tipspromenader()
 	{
-		return $this->hasMany(Tip::class);
+		return $this->hasMany(Tipspromenad::class);
 	}
 
 	/**

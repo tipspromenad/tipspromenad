@@ -21,21 +21,26 @@
 // });
 
 $factory->define(App\Question::class, function ($faker) {
+    $user_id = rand(1,4);
+    $correct_answer = ['1', 'x', '2'];
     return [
-        'name' => $faker->name,
+        'user_id' => $user_id,
+        'name' => $faker->sentence(5),
         'question' => $faker->text,
         'answer1' => $faker->sentence(),
         'answerx' => $faker->sentence(),
         'answer2' => $faker->sentence(),
-        'correct_answer' => "x",
+        'correct_answer' => $correct_answer[rand(0, 2)],
         'created_at' => $faker->dateTime(),
         'updated_at' => $faker->dateTime(),
         ];
 });
 
-$factory->define(App\Tip::class, function ($faker) {
+$factory->define(App\Tipspromenad::class, function ($faker) {
+    $user_id = rand(1,4);
     return [
-        'name' => $faker->name,
+        'user_id' => $user_id,
+        'name' => $faker->sentence(5),
         'description' => $faker->sentence(),
         'mobile' => $faker->boolean,
         'mobile_question' => $faker->boolean,
