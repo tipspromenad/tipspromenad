@@ -113,13 +113,12 @@
                                         <i class="fa fa-sign-in"></i> Logga in
                                     </button>
                                 </form>
-                                <ul class="list-group">
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 1</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 2</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 3</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 4</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 5</li>
-                                </ul>
+                                <hr>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 1</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 2</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 3</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 4</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 5</p>
                             </div> <!--// med kontodelen slut -->
                             <div class="col-xs-12 col-sm-5"> <!--// utan kontodelen -->
                                 <h4 class="text-primary text-center">Utan konto</h4>
@@ -128,23 +127,12 @@
                                 >
                                     <i class="fa fa-edit text-white"></i> Skapa tipspromenad<br> utan konto
                                 </button>
-                                <ul class="list-group">
-                                    <li class="text-success list-group-item">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 1
-                                    </li>
-                                    <li class="text-success list-group-item">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 2
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 3
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 4
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 5
-                                    </li>
-                                </ul>
+                                <hr>
+                                <p class="text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 1</p>
+                                <p class="text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 2</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 3</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 4</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 5</p>
                             </div> <!--// utan kontodelen slut -->
                         </div><!--//.row-->
                     </div><!--//.container-fluid-->
