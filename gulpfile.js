@@ -1,5 +1,7 @@
+var gulp       = require('gulp');
 var elixir = require('laravel-elixir');
-require('laravel-elixir-livereload');
+var livereload = require('gulp-livereload');
+
 /**
  * Uncomment for LESS version
  */
@@ -9,6 +11,9 @@ elixir(function(mix) {
         .copy('vendor/fortawesome/font-awesome/fonts', 'public/fonts')
         .copy('vendor/twbs/bootstrap/fonts', 'public/fonts')
         .copy('vendor/twbs/bootstrap/dist/js/bootstrap.min.js', 'public/js/vendor')
+    });
+elixir(function(mix) {
+    mix
         /**
          * Frontend
          */
@@ -69,7 +74,23 @@ elixir(function(mix) {
                     // backend
                     "css/backend.css", "js/backend.js"
                 ])
+});
 
-        .livereload();
 
+/**
+ * Logic for LiveReload to work properly on watch task.
+ */
+gulp.on('task_start', function (e) {
+    // only start LiveReload server if task is 'watch'
+    if (e.task === 'watch') {
+        livereload.listen();
+    }
+});
+gulp.task('watch-lr-css', function () {
+    // notify a CSS change, so that livereload can update it without a page refresh
+    livereload.changed('app.css');
+});
+gulp.task('watch-lr', function () {
+    // notify any other changes, so that livereload can refresh the page
+    livereload.changed('app.js');
 });
