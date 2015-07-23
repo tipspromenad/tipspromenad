@@ -172,8 +172,16 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-8 col-xs-offset-2">
-                                <h3 class="text-primary text-center">Ange ett namn för din tipspromenad:</h3>
                                 <form>
+                                    <h3 class="text-primary text-center">Ange ett namn för din tipspromenad:</h3>
+                                    <div class="form-group">
+                                        <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
+                                    </div>
+                                    <h3 class="text-primary text-center">Aktivera mobil tipspromenad?</h3>
+                                    <div class="form-group text-center">
+                                        <input id="mobiltips" name="" type="checkbox" class="input-md">
+                                    </div>
+                                    <h3 class="text-primary text-center">Sluttid?</h3>
                                     <div class="form-group">
                                         <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
                                     </div>
