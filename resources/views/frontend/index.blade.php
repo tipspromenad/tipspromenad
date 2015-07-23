@@ -79,7 +79,7 @@
         </div><!--// container -->
     </section> <!--// sektion -->
 
-    <!--// modaler -->
+<!--// modaler -->
 
     <!--// skapatipsmodalen -->
     <div class="modal fade bs-example-modal-lg" id="skapatipsmodal" role="dialog">
@@ -113,13 +113,12 @@
                                         <i class="fa fa-sign-in"></i> Logga in
                                     </button>
                                 </form>
-                                <ul class="list-group">
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 1</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 2</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 3</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 4</li>
-                                    <li class="text-success list-group-item"><i class="fa fa-check"></i> Skapa tipspromenader 5</li>
-                                </ul>
+                                <hr>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 1</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 2</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 3</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 4</p>
+                                <p class="font-s-18 text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 5</p>
                             </div> <!--// med kontodelen slut -->
                             <div class="col-xs-12 col-sm-5"> <!--// utan kontodelen -->
                                 <h4 class="text-primary text-center">Utan konto</h4>
@@ -128,101 +127,100 @@
                                 >
                                     <i class="fa fa-edit text-white"></i> Skapa tipspromenad<br> utan konto
                                 </button>
-                                <ul class="list-group">
-                                    <li class="text-success list-group-item">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 1
-                                    </li>
-                                    <li class="text-success list-group-item">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 2
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 3
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 4
-                                    </li>
-                                    <li class="text-success list-group-item disabled">
-                                        <i class="fa fa-check"></i> Skapa tipspromenader 5
-                                    </li>
-                                </ul>
+                                <hr>
+                                <p class="text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 1</p>
+                                <p class="text-primary"><i class="fa fa-check text-success"></i> Skapa tipspromenader 2</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 3</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 4</p>
+                                <p class="text-gray-lighter"><i class="fa fa-check text-gray-lighter"></i> Skapa tipspromenader 5</p>
                             </div> <!--// utan kontodelen slut -->
                         </div><!--//.row-->
                     </div><!--//.container-fluid-->
                 </div><!--//.modal-body-->
-
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
-
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div> <!-- /.modal -->
     <!--// skapatipsmodalen slut -->
 
-        <!--// skapautankonto -->
-        <div class="modal fade" id="skapautankonto" role="dialog">
-          <div class="modal-dialog">
+    <!--// skapautankonto -->
+    <div class="modal fade" id="skapautankonto" role="dialog">
+        <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header bg-primary">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Skapa tipspromenad utan konto</h4>
-              </div>
-              <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-xs-8 col-xs-offset-2">
-                            <h3 class="text-primary text-center">Ange ett namn för din tipspromenad:</h3>
-                            <form>
-                                <div class="form-group">
-                                <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
-                                </div>
-                            </form>
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Skapa tipspromenad utan konto</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-8 col-xs-offset-2">
+                                <form>
+                                    <h3 class="text-primary text-center">Ange ett namn för din tipspromenad:</h3>
+                                    <div class="form-group">
+                                        <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
+                                    </div>
+                                    <h3 class="text-primary text-center">Aktivera mobil tipspromenad?</h3>
+                                    <div class="form-group text-center">
+                                        <input id="mobiltips" name="" type="checkbox" class="input-md">
+                                    </div>
+                                    <h3 class="text-primary text-center">Sluttid?</h3>
+                                    <div class="form-group">
+                                        <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#skapatipsmodal">Avbryt</button>
-                <button type="button" class="btn btn-success">Skapa tipspromenad</button>
-              </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#skapatipsmodal">Avbryt</button>
+                    <button type="button" class="btn btn-success">Skapa tipspromenad</button>
+                </div>
             </div><!-- /.modal-content -->
-          </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-        <!--// skapautankonto slut -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!--// skapautankonto slut -->
 
-        <!--// gåtipsmodalen -->
-        <div class="modal fade" id="gapatipsmodal" role="dialog">
-          <div class="modal-dialog">
+    <!--// gåtipsmodalen -->
+    <div class="modal fade" id="gapatipsmodal" role="dialog">
+        <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header bg-primary">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Gå tipspromenad</h4>
-              </div>
-              <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-xs-8 col-xs-offset-2">
-                            <h3 class="text-primary text-center">Ange ditt tips-id:</h3>
-                            <form>
-                                <div class="form-group">
-                                <input id="username" name="" type="number" placeholder="T.ex: 02846" class="form-control input-lg">
-                                </div>
-                            </form>
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Gå tipspromenad</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-8 col-xs-offset-2">
+                                <h3 class="text-primary text-center">Ange ditt tips-id:</h3>
+                                <form>
+                                    <div class="form-group">
+                                        <input id="username" name="" type="number" placeholder="T.ex: 02846" class="form-control input-lg">
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success">Gå tipspromenad</button>
-              </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success">Gå tipspromenad</button>
+                </div>
             </div><!-- /.modal-content -->
-          </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-        <!--// gåtipsmodalen slut -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!--// gåtipsmodalen slut -->
 
-    <!--// modaler slut -->
+<!--// modaler slut -->
 
 @endsection
 

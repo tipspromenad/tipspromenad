@@ -49,7 +49,39 @@ $faker = Faker\Factory::create();
       <br>
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane" id="tab-ny-fraga">
-          <h1>Ny fråga</h1>
+          <h2>Skapa ny fråga</h2>
+          <p>Här lägger man till egna frågor.</p>
+          <form>
+            <div class="form-group">
+              <h3>Fråga:</h3>
+              <p>Skriv din fråga i rutan nedanför.</p>
+              <textarea name="egenfraga" id="" cols="80" rows="10"></textarea>
+            </div>
+            <div class="form-group">
+              <h3>Svarsalternativ:</h3>
+              <p>Skriv svarsalternativen i respektive fält och vilket svar som är rätt.</p>
+              <input id="rättsvar1" name="" type="text" placeholder="" class="form-control input-md">
+              <input id="rättsvarX" name="" type="text" placeholder="" class="form-control input-md">
+              <input id="rättsvar2" name="" type="text" placeholder="" class="form-control input-md">
+            </div>
+          </form>
+          <div class="row">
+            <div class="col-xs-12 col-sm-6">
+              <h4>Lägg till kategorier:</h4>
+              <p>Kategorier möjliggör enklare sökning efter frågor</p>
+              <input id="kategorier" name="" type="text" placeholder="" class="form-control input-md">
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <h4>Kan frågan användas av andra?</h4>
+              <p>Spara frågan genom att välja ett av nedanstående alternativ.</p>
+              <p>
+                <button type="button" class="btn btn-success"><i class="fa fa-check"></i> Ja, gör frågan publik.</button>
+              </p>
+              <p>
+                <button type="button" class="btn btn-warning"><i class="fa fa-remove"></i> Nej, gör frågan privat.</button>
+              </p>
+            </div>
+          </div>
         </div><!--  /.tab-ny-fraga -->
 
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
