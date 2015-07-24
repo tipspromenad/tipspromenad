@@ -2,6 +2,26 @@
 
 @section('after-styles-end')
     <style type="text/css">
+    .saved-container{
+      position: fixed;
+      top: 20px;
+      width: 100%;
+      z-index: 0;
+    }
+    .saved-container-z-index{
+      z-index: 10000;
+    }
+    .saved-msg {
+      width: 220px;
+      opacity: 0;
+      -webkit-transition: opacity 0.15s linear;
+      -moz-transition: opacity 0.15s linear;
+      -o-transition: opacity 0.15s linear;
+      transition: opacity 0.15s linear;
+    }
+    .saved-msg.in {
+      opacity: 1;
+    }
     .trunkated-item{
       cursor: pointer;
       height: 38px;
@@ -38,7 +58,7 @@ require_once '../vendor/fzaninotto/faker/src/autoload.php';
 $faker = Faker\Factory::create();
  ?>
 
-<div class="container">
+<div class="container" id="skapa">
   <div class="row row-offcanvas row-offcanvas-right">
     <div class="col-xs-12 col-sm-8">
       <p>lorem ipsum dolor sit amet, consectetur adipisicing elit. cumque, laudantium reiciendis distinctio. repellat laudantium odio debitis doloremque velit qui nisi, est non ipsa. consequuntur, debitis!</p>
@@ -59,11 +79,12 @@ $faker = Faker\Factory::create();
         <div class="row">
           <div class="col-sm-6">
               <h1>Välj fråga från frågebanken</h1>
+              <div class="btn btn-xs btn-primary" v-on="click: showSavedMsg">Visa spara skylten</div>
           </div>
           <div class="col-sm-6">
             <br>
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Sök bland frågorna...">
+              <input type="text" class="form-control" v-model="searchQuery" placeholder="Sök bland frågorna...">
               <span class="input-group-btn">
                 <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
               </span>
@@ -79,42 +100,48 @@ $faker = Faker\Factory::create();
                 </td>
                 <td>
                   Fråga
+                  <div class="pull-right">
+                    Sortera efter: <span class="orderBy" v-on="click: orderby = 'created_at', click: order = ! order">nyaste</span>
+                     -
+                    <span class="orderBy" v-on="click: orderby = 'created_at', click: order = ! order">mest använda</span>
+                     -
+                    <span class="orderBy" v-on="click: orderby = 'user.name', click: order = ! order">Skapare</span>
+                  </div>
                 </td>
               </thead>
               <tbody>
-              @for($i = 0; $i < 20; $i++)
-                <tr>
+                <tr v-repeat="questions | filterBy searchQuery | orderBy orderby order">
                   <td>
                     <div class="btn btn-primary btn-xs"><i class="fa fa-plus"></i></div>
                     <div class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></div>
                   </td>
                   <td>
 
-                    <div class="fragebanken-trunkated-question">
+                    <div id="fragebanken-question-@{{id}}" class="fragebanken-trunkated-question trunkated" v-on="click: fragebankenExpand(id, $event)">
                       <div class="trunkated-text">
-                        {{ $faker->sentence($nbWords = $faker->numberBetween($min = 10, $max = 35))}}
+                        @{{ question }}
                         <ol class="ettkrysstva-list-lg">
-                          <li class="ettkrysstva-list-item-lg">
-                              {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 15)) }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == '1'">
+                              @{{ answer1 }}
                           </li>
-                          <li class="ettkrysstva-list-item-lg">
-                          Här är en nestad lista innuti denna &lt;li&gt;
-                          <ul>
-                            <li>nested list 1</li>
-                            <li>nested list 2</li>
-                            <li>nested list 3</li>
-                          </ul></li>
-                          <li class="ettkrysstva-list-item-lg">
-                            {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 8)) }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == 'x'">
+                            @{{ answerx }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == '2'">
+                            @{{ answer2 }}
                           </li>
                         </ol>
+                        <small class="pull-left text-gray-light">Denna fråga används i @{{ (tipspromenaderCount > 1 ) ? tipspromenaderCount + ' tipspromenader' : tipspromenaderCount + ' tipspromenad' }}</small>
+                        <small class="pull-right text-gray-light">Skapad av: @{{ user.name + ' ' + created_at_diffForHumans}}</small>
                       </div>
                     </div>
                   </td>
                 </tr>
-              @endfor
               </tbody>
              </table>
+             <br><br>
+             <pre>
+               @{{ $data | json }}
+             </pre>
            </div><!--  /.col-xs-12 -->
          </div><!--  /.row -->
         </div><!--  /.tab-ny-fraga -->
@@ -191,29 +218,18 @@ $faker = Faker\Factory::create();
       </div>
     </div><!--/left-->
   </div><!--/row-->
+  <div class="saved-container">
+    <div class="alert alert-info center-block text-center saved-msg" v-class="in : savedMsg">Dina ändringar är nu sparade</div>
+  </div>
 </div><!--/.container-->
 @endsection
 
 
 @section('after-scripts-end')
+
+<script src="{{ asset('js/bundle.js') }}"></script>
+
 <script>
-
-$('.fragebanken-trunkated-question').click(function(e) {
-  if($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')){
-    var h = $(this)[0].scrollHeight;
-
-    if($(this).hasClass('hide-trunkated')) {
-        $(this).animate({height:38},200)
-        .removeClass('hide-trunkated')
-        .addClass('trunkated');
-      } else {
-        console.log('scrollHeight: ' + h);
-        $(this).animate({height:h},200)
-        .addClass('hide-trunkated')
-        .removeClass('trunkated');
-      }
-  }
-});
 
 $('.trunkated-item').click(function(e) {
   if($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')){
@@ -233,6 +249,7 @@ $('.trunkated-item').click(function(e) {
 });
 
 $(function() {
+
     $('#tipspromenad-name').truncate({
     width: 'auto',
     token: '&hellip;',

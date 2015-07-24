@@ -45,8 +45,10 @@ elixir(function(mix) {
             '../../plugins.js',
             'vendor/jquery.slimscroll.min.js',
             'vendor/jquery.truncate.min.js',
-            'main.js'
+            'main.js',
         ], 'public/js/skapa.js', 'resources/assets/js/frontend/skapa')
+
+        .browserify('frontend/skapa/skapa.js')
 
         /**
          * Backend

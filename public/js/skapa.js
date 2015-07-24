@@ -88,14 +88,9 @@ $(function () {
   if($('.collapsable').is(':visible')){
     $('#test').addClass("col-xs-6 sidebar-offcanvas affix-top visible-xs")
   }
-/* activate sidebar */
-$('#sidebarAffix').affix({
-  offset: {
-    top: 60,
-    bottom: 80
-  }
-});
-var wheight = $(window).height();
+
+  var wheight = $(window).height();
+
 $('#ulScroll').slimScroll({
   height: wheight - (150) + 'px'
 });

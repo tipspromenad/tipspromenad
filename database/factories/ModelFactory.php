@@ -31,8 +31,8 @@ $factory->define(App\Question::class, function ($faker) {
         'answerx' => $faker->sentence(),
         'answer2' => $faker->sentence(),
         'correct_answer' => $correct_answer[rand(0, 2)],
-        'created_at' => $faker->dateTime(),
-        'updated_at' => $faker->dateTime(),
+        'created_at' => $faker->dateTimeThisMonth(),
+        'updated_at' => $faker->dateTimeThisMonth(),
         ];
 });
 
@@ -44,16 +44,16 @@ $factory->define(App\Tipspromenad::class, function ($faker) {
         'description' => $faker->sentence(),
         'mobile' => $faker->boolean,
         'mobile_question' => $faker->boolean,
-        'created_at' => $faker->dateTime(),
-        'updated_at' => $faker->dateTime(),
+        'created_at' => $faker->dateTimeThisMonth(),
+        'updated_at' => $faker->dateTimeThisMonth(),
         ];
 });
 
 $factory->define(App\Tag::class, function ($faker) {
     return [
         'name' => $faker->word,
-        'created_at' => $faker->dateTime(),
-        'updated_at' => $faker->dateTime(),
+        'created_at' => $faker->dateTimeThisMonth(),
+        'updated_at' => $faker->dateTimeThisMonth(),
         ];
 });
 

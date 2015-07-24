@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 class Question extends Model
 {
     /**
+     * returns the number of tipspromenader the question is in
+     * @return int tipspromenaderCount
+     */
+    public function tipspromenaderCount()
+    {
+        return $this->tipspromenader->count();
+    }
+    /**
      * a question can belong to many tipspromenader
      * @return Tipspromenad::class (all the tipspromenader where the question is added)
      */
