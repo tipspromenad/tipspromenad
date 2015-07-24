@@ -10,6 +10,12 @@ Route::group(['namespace' => 'Frontend'], function ()
 	require_once(__DIR__ . "/Routes/Frontend/Access.php");
 });
 
+Route::group(['namespace' => 'Api'], function ()
+{
+	require_once(__DIR__ . "/Routes/Api/ApiRoutes.php");
+});
+
+
 /**
  * Backend Routes
  * Namespaces indicate folder structure

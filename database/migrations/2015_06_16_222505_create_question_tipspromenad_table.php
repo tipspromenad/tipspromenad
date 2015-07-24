@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateQuestionTipTable extends Migration
+class CreateQuestionTipspromenadTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,10 +12,10 @@ class CreateQuestionTipTable extends Migration
      */
     public function up()
     {
-        Schema::create('question_tip', function (Blueprint $table) {
+        Schema::create('question_tipspromenad', function (Blueprint $table) {
             $table->integer('question_id');
-            $table->integer('tip_id');
-            $table->primary(['question_id', 'tip_id']);
+            $table->integer('tipspromenad_id');
+            $table->primary(['question_id', 'tipspromenad_id']);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ class CreateQuestionTipTable extends Migration
      */
     public function down()
     {
-        Schema::drop('question_tip');
+        Schema::drop('question_tipspromenad');
     }
 }

@@ -9391,14 +9391,28 @@ body {
   position: fixed;
   top: 15px;
 }
+.orderBy {
+  cursor: pointer;
+  color: #7bc3ed;
+}
+a.orderBy:hover,
+a.orderBy:focus {
+  color: #4eafe7;
+}
+.orderBy:hover,
+.orderBy:focus,
+.orderBy:active {
+  color: #4eafe7;
+}
 #toggle-offcanvas-wrapper {
   position: absolute;
-  left: -58px;
+  left: -42px;
   top: 20px;
   width: 10px;
 }
 #toggle-offcanvas {
-  z-index: 3;
+  position: fixed;
+  z-index: 10000;
   height: 40px;
   width: 45px;
   background-color: #eeeeee;
@@ -9474,10 +9488,12 @@ ali.ettkrysstva-list-item:before:hover,
 ali.ettkrysstva-list-item:before:focus {
   background-color: #4eafe7;
 }
-li.ettkrysstva-list-item:nth-child(2):before {
+li.ettkrysstva-list-item:nth-child(2):before,
+li.ettkrysstva-list-item-lg:nth-child(2):before {
   content: "X";
 }
-li.ettkrysstva-list-item:nth-child(3):before {
+li.ettkrysstva-list-item:nth-child(3):before,
+li.ettkrysstva-list-item-lg:nth-child(3):before {
   content: "2";
 }
 .ettkrysstva-list-lg {
@@ -9494,25 +9510,39 @@ li.ettkrysstva-list-item-lg {
   display: block;
   margin-bottom: .5em;
   margin-left: 2em;
+  color: #555555;
+}
+li.ettkrysstva-list-item-lg.correct-answer {
+  color: #000000;
 }
 li.ettkrysstva-list-item-lg:before {
   display: inline-block;
   content: counter(item);
   counter-increment: item;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   padding-top: 1px;
   padding-left: 1px;
   margin-left: -2em;
   margin-right: 4px;
+  color: #7bc3ed;
+  text-align: center;
+  border: #7bc3ed solid 2px;
+  border-radius: 11px;
+}
+ali.ettkrysstva-list-item-lg:before:hover,
+ali.ettkrysstva-list-item-lg:before:focus {
+  color: #4eafe7;
+}
+li.ettkrysstva-list-item-lg.correct-answer:before {
   color: #fff;
   background-color: #7bc3ed;
   color: #ffffff;
   text-align: center;
-  border-radius: 9px;
+  border: #7bc3ed solid 2px;
 }
-ali.ettkrysstva-list-item-lg:before:hover,
-ali.ettkrysstva-list-item-lg:before:focus {
+ali.ettkrysstva-list-item-lg.correct-answer:before:hover,
+ali.ettkrysstva-list-item-lg.correct-answer:before:focus {
   background-color: #4eafe7;
 }
 
