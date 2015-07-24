@@ -6,7 +6,7 @@
       position: fixed;
       top: 20px;
       width: 100%;
-      z-index: 0;
+      z-index: -100;
     }
     .saved-container-z-index{
       z-index: 10000;
