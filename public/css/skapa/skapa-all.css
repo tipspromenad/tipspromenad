@@ -9337,6 +9337,9 @@ body {
 .border-gray-darker-hover:focus {
   border: #222222 solid 2px;
 }
+.pointer {
+  cursor: pointer;
+}
 /*
  * Style tweaks
  * --------------------------------------------------
@@ -9404,6 +9407,20 @@ a.orderBy:focus {
 .orderBy:active {
   color: #4eafe7;
 }
+.elipsis-popover-btn {
+  text-align: center;
+  width: 20px;
+}
+.popover-content {
+  max-width: 100px;
+  /* If max-width does not work, try using width instead */
+  width: auto;
+}
+.selected-question-placeholder {
+  background-color: #e2e2e2;
+  height: 40px;
+  border-top: 3px solid #cfcfcf;
+}
 #toggle-offcanvas-wrapper {
   position: absolute;
   left: -42px;
@@ -9432,14 +9449,14 @@ a.orderBy:focus {
   color: #777777;
   font-size: 22px;
 }
-.question-number {
+.selected-question-number {
   width: 20px;
   margin-right: 3px;
   padding-top: 5px;
   font-size: 14px;
   font-weight: bold;
 }
-.question-right-answer {
+.selected-question-right-answer {
   left: 0px;
   margin-top: 4px;
   width: 20px;
@@ -9450,8 +9467,8 @@ a.orderBy:focus {
   text-align: center;
   border-radius: 10px;
 }
-a.question-right-answer:hover,
-a.question-right-answer:focus {
+a.selected-question-right-answer:hover,
+a.selected-question-right-answer:focus {
   background-color: #4eafe7;
 }
 .ettkrysstva-list {

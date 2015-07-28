@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
 
-use App\Tip;
+use App\Tipspromenad;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -17,7 +17,7 @@ class TipsController extends Controller
      */
     public function index()
     {
-        $tips = Tip::all();
+        $tips = Tipspromenad::all();
         return view('backend.tips.tips-index', compact('tips'));
     }
 
@@ -44,7 +44,7 @@ class TipsController extends Controller
         $tipspromenad->description = $request->description;
         $tipspromenad->save();
 
-        $tips = Tip::all();
+        $tips = Tipspromenad::all();
         return redirect()->action('Backend\TipsController@index')->withFlashSuccess('Tipspromenaden "'. $tipspromenad->name .'" är nu skapad.');
     }
 
@@ -67,7 +67,7 @@ class TipsController extends Controller
      */
     public function edit($id)
     {
-        $tipspromenad = Tip::find($id);
+        $tipspromenad = Tipspromenad::find($id);
         return view('backend.tips.tips-edit', compact('tipspromenad'));
     }
 
@@ -91,7 +91,7 @@ class TipsController extends Controller
     public function destroy($id)
     {
         return "destroy plz";
-        Tip::find($id)->delete($id);
+        Tipspromenad::find($id)->delete($id);
         return redirect()->back()->withFlashSuccess('Tipspromenaden är permanent raderad.');
     }
 }

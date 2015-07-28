@@ -4,7 +4,7 @@
     <style type="text/css">
     .saved-container{
       position: fixed;
-      top: 20px;
+      top: 15px;
       width: 100%;
       z-index: -100;
     }
@@ -46,9 +46,6 @@
       width: 100%;
       padding: 5px 15px;
     }
-    .dropdown {
-          position: absolute;
-        }
     </style>
 @endsection
 
@@ -109,17 +106,15 @@ $faker = Faker\Factory::create();
 
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
         <div class="row">
-          <div class="col-sm-6">
-              <h1>Välj fråga från frågebanken</h1>
+          <div class="col-sm-12">
+              <h1>Välj frågor från frågebanken</h1>
               <div class="btn btn-xs btn-primary" v-on="click: showSavedMsg">Visa spara skylten</div>
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-12">
             <br>
             <div class="input-group">
               <input type="text" class="form-control" v-model="searchQuery" placeholder="Sök bland frågorna...">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-              </span>
+              <div class="input-group-addon"><i class="fa fa-search"></i></div>
             </div><!-- /input-group -->
           </div><!-- /.col-lg-6 -->
         </div><!--/.row-->
@@ -135,7 +130,7 @@ $faker = Faker\Factory::create();
                   <div class="pull-right">
                     Sortera efter: <span class="orderBy" v-on="click: orderby = 'created_at', click: order = ! order">nyaste</span>
                      -
-                    <span class="orderBy" v-on="click: orderby = 'created_at', click: order = ! order">mest använda</span>
+                    <span class="orderBy" v-on="click: orderby = 'tipspromenaderCount', click: order = ! order">mest använda</span>
                      -
                     <span class="orderBy" v-on="click: orderby = 'user.name', click: order = ! order">Skapare</span>
                   </div>
@@ -179,6 +174,7 @@ $faker = Faker\Factory::create();
         </div><!--  /.tab-ny-fraga -->
         <div role="tabpanel" class="tab-pane" id="tab-tipspromenader">
           <h1>Välj en färdig tipspromenad</h1>
+
         </div><!--  /.tab-tipspromenader -->
       </div><!--  /.tab-content -->
     </div><!--/.col-sm-8 /.left -->
@@ -202,26 +198,28 @@ $faker = Faker\Factory::create();
               @for ($i = 1; $i <= rand(7, 25); $i++)
                 <div class="list-group-item trunkated-item">
                   <div class="row">
-                    <div class="col-xs-7 col-sm-7 col-md-8">
-                    <div class="question-number pull-left">{{ $i }}.</div>
+                    <div class="col-xs-8 col-sm-7 col-md-8">
+                    <div class="selected-question-number pull-left">{{ $i }}.</div>
                       <p class="list-group-item-text trunkated-text">
-                        {{ $faker->sentence($nbWords = $faker->numberBetween($min = 8, $max = 25)) }}
+                        urs: {{ $i }} - {{ $faker->sentence($nbWords = $faker->numberBetween($min = 8, $max = 25)) }}
                       </p>
                     </div>
-                    <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light question-buttons text-center">
-                      <div class="question-right-answer pull-left">{{ $faker->randomElement($array = array ('1','X','2')) }}</div>
-                      <div class="btn-group ">
-                          <i onclick="console.log('click on: ellipsis')"class="fa fa-ellipsis-v fa-2x dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                        <ul class="dropdown-menu" style="z-index: 10000;">
-                          <li><a href="#">Action</a></li>
-                          <li><a href="#">Another action</a></li>
-                          <li><a href="#">Something else here</a></li>
-                          <li role="separator" class="divider"></li>
-                          <li><a href="#">Separated link</a></li>
-                        </ul>
+                    <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light selected-question-buttons text-center">
+                      <div class="selected-question-right-answer pull-left">{{ $faker->randomElement($array = array ('1','X','2')) }}</div>
+                      <div class="btn-group elipsis-buttonelipsis-button" data-container="body"
+                        data-html="true" data-toggle="popover" data-placement="left"
+                        data-content="
+                          <i class='fa fa-pencil-square-o fa-2x text-primary text-hover pointer'
+                            data-toggle='tooltip' data-placement='top' title='Redigera fråga'
+                          ></i>
+                          <i class='fa fa-times fa-2x text-danger text-hover pointer'
+                          data-toggle='tooltip' data-placement='top' title='Ta bort fråga från din tipspromenad'
+                          ></i>
+                        ">
+                          <i class="fa fa-ellipsis-v fa-2x"></i>
                       </div>
                       <span>
-                        <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right" style="margin-right: 8px;"></i>
+                        <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right sortable-handle" style="margin-right: 8px;"></i>
                       </span>
                     </div>
                     <div class="col-xs-12 trunkated-text">
@@ -259,6 +257,9 @@ $faker = Faker\Factory::create();
 
 @section('after-scripts-end')
 
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="{{ asset('js/vendor/jquery.ui.touch-punch.min.js') }}"></script>
+
 <script src="{{ asset('js/bundle.js') }}"></script>
 
 <script>
@@ -281,8 +282,30 @@ $('.trunkated-item').click(function(e) {
 });
 
 $(function() {
+    $( ".list-group" ).sortable({
+        connectWith: ".list-group",
+        handle: ".sortable-handle",
+        cancel: ".portlet-toggle",
+        placeholder: "selected-question-placeholder",
+        stop: function(event, ui) {
+                $('.selected-question-number').each(function(idx){
+                    $(this).html(idx+1);
+                });
+            }
+      });
 
-    $('#tipspromenad-name').truncate({
+      $( ".list-group" ).disableSelection();
+
+      $( ".list-group-item" )
+        .addClass( "ui-widget ui-widget-content ui-helper-clearfix" );
+
+
+  $('[data-toggle="popover"]').on('shown.bs.popover', function () {
+    console.log('popover is shown, init tooltip');
+    $('[data-toggle="tooltip"]').tooltip();
+  })
+
+  $('#tipspromenad-name').truncate({
     width: 'auto',
     token: '&hellip;',
     side: 'right',

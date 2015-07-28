@@ -9126,6 +9126,9 @@ body {
 .border-gray-darker-hover:focus {
   border: #222222 solid 2px;
 }
+.pointer {
+  cursor: pointer;
+}
 
 /*# sourceMappingURL=main.css.map */
 /*# sourceMappingURL=frontend.css.map */

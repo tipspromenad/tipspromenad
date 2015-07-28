@@ -8,6 +8,22 @@
         color: darken(@brand-primary, 10%);
     }
 }
+.elipsis-popover-btn{
+    .text-center;
+    width: 20px;
+}
+.popover-content {
+    max-width: 100px;
+    /* If max-width does not work, try using width instead */
+    width: auto;
+}
+
+.selected-question-placeholder {
+  background-color: darken(@gray-lighter, 5%);
+  height: 40px;
+  border-top: 3px solid #cfcfcf;
+}
+
 #toggle-offcanvas-wrapper{
       position: absolute;
       left: -42px;
@@ -39,14 +55,14 @@
         .font-s-22;
     }
 }
-.question-number{
+.selected-question-number{
   width: 20px;
   margin-right: 3px;
   padding-top: 5px;
   font-size: 14px;
   font-weight: bold;
 }
-.question-right-answer{
+.selected-question-right-answer{
     left: 0px;
     margin-top: 4px;
     width: 20px;
