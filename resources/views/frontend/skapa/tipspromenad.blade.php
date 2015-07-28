@@ -75,7 +75,7 @@ $faker = Faker\Factory::create();
             <div class="form-group">
               <h3>Fråga:</h3>
               <p>Skriv din fråga i rutan nedanför.</p>
-              <textarea name="egenfraga" id="" cols="80" rows="10"></textarea>
+              <textarea class="form-control" name="egenfraga" id="" rows="10"></textarea>
             </div>
             <div class="form-group">
               <h3>Svarsalternativ:</h3>
