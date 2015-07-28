@@ -46,6 +46,9 @@
       width: 100%;
       padding: 5px 15px;
     }
+    textarea{
+      resize: vertical;
+    }
     </style>
 @endsection
 
