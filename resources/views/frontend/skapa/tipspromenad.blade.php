@@ -287,6 +287,7 @@ $(function() {
         handle: ".sortable-handle",
         cancel: ".portlet-toggle",
         placeholder: "selected-question-placeholder",
+        forcePlaceholderSize: true,
         start: function(event, ui) {
           var thisHeight = $(this).height();
           if($(this).parent('.hide-trunkated').length){

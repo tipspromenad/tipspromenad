@@ -9424,7 +9424,7 @@ a.orderBy:focus {
 }
 .selected-question-placeholder {
   background-color: #e2e2e2;
-  height: 40px;
+  height: inherit;
   border-top: 3px solid #cfcfcf;
 }
 #toggle-offcanvas-wrapper {
