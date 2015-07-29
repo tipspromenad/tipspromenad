@@ -9416,6 +9416,12 @@ a.orderBy:focus {
   /* If max-width does not work, try using width instead */
   width: auto;
 }
+.sortable-handle {
+  float: right !important;
+  float: right;
+  margin-right: 8px;
+  cursor: ns-resize;
+}
 .selected-question-placeholder {
   background-color: #e2e2e2;
   height: 40px;

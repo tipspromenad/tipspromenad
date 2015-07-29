@@ -115,9 +115,9 @@ $faker = Faker\Factory::create();
             <div class="input-group">
               <input type="text" class="form-control" v-model="searchQuery" placeholder="Sök bland frågorna...">
               <div class="input-group-addon"><i class="fa fa-search"></i></div>
-            </div><!-- /input-group -->
+            </div><!-- /.input-group -->
           </div><!-- /.col-lg-6 -->
-        </div><!--/.row-->
+        </div><!-- /.row-->
          <div class="row">
            <div class="col-xs-12">
              <table class="table table-striped table-hover">
@@ -199,9 +199,9 @@ $faker = Faker\Factory::create();
                 <div class="list-group-item trunkated-item">
                   <div class="row">
                     <div class="col-xs-8 col-sm-7 col-md-8">
-                    <div class="selected-question-number pull-left">{{ $i }}.</div>
+                      <div class="selected-question-number pull-left">{{ $i }}.</div>
                       <p class="list-group-item-text trunkated-text">
-                        urs: {{ $i }} - {{ $faker->sentence($nbWords = $faker->numberBetween($min = 8, $max = 25)) }}
+                        op: {{ $i }} - {{ $faker->sentence($nbWords = $faker->numberBetween($min = 8, $max = 25)) }}
                       </p>
                     </div>
                     <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light selected-question-buttons text-center">
@@ -219,7 +219,7 @@ $faker = Faker\Factory::create();
                           <i class="fa fa-ellipsis-v fa-2x"></i>
                       </div>
                       <span>
-                        <i onclick="console.log('click on: arrows')"class="fa fa-arrows-v fa-2x pull-right sortable-handle" style="margin-right: 8px;"></i>
+                        <i class="fa fa-arrows-v fa-2x sortable-handle"></i>
                       </span>
                     </div>
                     <div class="col-xs-12 trunkated-text">
@@ -287,6 +287,13 @@ $(function() {
         handle: ".sortable-handle",
         cancel: ".portlet-toggle",
         placeholder: "selected-question-placeholder",
+        start: function(event, ui) {
+          var thisHeight = $(this).height();
+          if($(this).parent('.hide-trunkated').length){
+            console.log('this has been opend:' + thisHeight)
+          }
+          console.log('start of sortable, thisHeight: ' + thisHeight);
+        },
         stop: function(event, ui) {
                 $('.selected-question-number').each(function(idx){
                     $(this).html(idx+1);
