@@ -46,8 +46,13 @@
       width: 100%;
       padding: 5px 15px;
     }
-    textarea{
+    .textarea-resize1{
       resize: vertical;
+    }
+    .textarea-resize2{
+      resize: none;
+      margin-top: 5px;
+      margin-bottom: 5px;
     }
     </style>
 @endsection
@@ -78,33 +83,44 @@ $faker = Faker\Factory::create();
             <div class="form-group">
               <h3>Fråga:</h3>
               <p>Skriv din fråga i rutan nedanför.</p>
-              <textarea class="form-control" name="egenfraga" id="" rows="10"></textarea>
+              <textarea class="form-control textarea-resize1" name="egenfraga" id="" rows="10"></textarea>
             </div>
             <div class="form-group">
               <h3>Svarsalternativ:</h3>
-              <p>Skriv svarsalternativen i respektive fält och vilket svar som är rätt.</p>
-              <input id="rättsvar1" name="" type="text" placeholder="" class="form-control input-md">
-              <input id="rättsvarX" name="" type="text" placeholder="" class="form-control input-md">
-              <input id="rättsvar2" name="" type="text" placeholder="" class="form-control input-md">
+              <p>Skriv svarsalternativen i respektive fält och ange vilket svar som är rätt.</p>
+              <textarea class="form-control textarea-resize2" name="egenfraga" id="" rows="1"></textarea>
+              <textarea class="form-control textarea-resize2" name="egenfraga" id="" rows="1"></textarea>
+              <textarea class="form-control textarea-resize2" name="egenfraga" id="" rows="1"></textarea>
             </div>
           </form>
           <div class="row">
             <div class="col-xs-12 col-sm-6">
               <h4>Lägg till kategorier:</h4>
-              <p>Kategorier möjliggör enklare sökning efter frågor</p>
-              <input id="kategorier" name="" type="text" placeholder="" class="form-control input-md">
+              <p>Kategorier möjliggör enklare sökning efter frågor.</p>
+              <input id="kategorier" name="" type="text" placeholder="" class="form-control input-md"></p>
             </div>
             <div class="col-xs-12 col-sm-6">
               <h4>Kan frågan användas av andra?</h4>
-              <p>Spara frågan genom att välja ett av nedanstående alternativ.</p>
-              <p>
-                <button type="button" class="btn btn-success"><i class="fa fa-check"></i> Ja, gör frågan publik.</button>
-              </p>
-              <p>
-                <button type="button" class="btn btn-warning"><i class="fa fa-remove"></i> Nej, gör frågan privat.</button>
-              </p>
-            </div>
-          </div>
+              <p>Bestäm om frågan skall vara tillgänglig för andra användare.</p>
+              <div class="form-group">
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                    Ja, gör frågan publik.
+                  </label>
+                </div>
+                <div class="radio">
+                  <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                    Nej, gör frågan privat.
+                  </label>
+                </div>
+              </div><!-- /.form-group -->
+            </div><!-- /.col-xs-12 sm-6 -->
+            <div class="col-xs-12">
+              <button type="button" class="btn btn-lg btn-success center-block" style="margin-top: 15px;"><i class="fa fa-check"></i> Spara frågan.</button>
+            </div><!-- /.col-xs-12  -->
+          </div><!-- /.row -->
         </div><!--  /.tab-ny-fraga -->
 
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
