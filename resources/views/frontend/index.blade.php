@@ -55,12 +55,14 @@
                     <div class="logo center-block">
                         <a href="http://tipspromenad.dev" title="Klicka för att komma till startsidan."><img src="{!!asset('img/frontend/tipspromenadlogo.svg')!!}" class="img-responsive" alt="tipspromenad.NU" /></a>
                     </div>
+                </div>
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#skapatipsmodal">Skapa tipspromenad</button>
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
-                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#gapatipsmodal">Gå tipspromenad</button>
-                </div><!--// col -->
+                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#gapatipsmodal">
+                        Gå tipspromenad
+                    </button>
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <div class="text-center">
