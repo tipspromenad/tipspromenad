@@ -1,69 +1,72 @@
 @extends('frontend.layouts.master-skapa')
 
+@section('before-styles-end')
+  <meta name="_token" content="{{ csrf_token() }}" />
+@endsection
+
 @section('after-styles-end')
-    <style type="text/css">
-    .saved-container{
-      position: fixed;
-      top: 15px;
-      width: 100%;
-      z-index: -100;
-    }
-    .saved-container-z-index{
-      z-index: 10000;
-    }
-    .saved-msg {
-      width: 220px;
-      opacity: 0;
-      -webkit-transition: opacity 0.15s linear;
-      -moz-transition: opacity 0.15s linear;
-      -o-transition: opacity 0.15s linear;
-      transition: opacity 0.15s linear;
-    }
-    .saved-msg.in {
-      opacity: 1;
-    }
-    .trunkated-item{
-      cursor: pointer;
-      height: 38px;
-      display:block;
-      position: relative;
-      overflow:hidden;
-      z-index: 1040;
-    }
-    .fragebanken-trunkated-question{
-      cursor: pointer;
-      padding-top: 4px;
-      height: 38px;
-      display:block;
-      position: relative;
-      overflow:hidden;
-      z-index: 1040;
-    }
-    .question-buttons{
-      margin-top: 2px;
-    }
-    .sidebar-holder{
-      width: 100%;
-      padding: 5px 15px;
-    }
-    .textarea-resize1{
-      resize: vertical;
-    }
-    .textarea-resize2{
-      resize: none;
-      margin-top: 5px;
-      margin-bottom: 5px;
-    }
-    </style>
+<style type="text/css">
+  .saved-container{
+    position: fixed;
+    top: 15px;
+    width: 100%;
+    z-index: -100;
+  }
+  .saved-container-z-index{
+    z-index: 10000;
+  }
+  .saved-msg {
+    width: 220px;
+    opacity: 0;
+    -webkit-transition: opacity 0.15s linear;
+    -moz-transition: opacity 0.15s linear;
+    -o-transition: opacity 0.15s linear;
+    transition: opacity 0.15s linear;
+  }
+  .saved-msg.in {
+    opacity: 1;
+  }
+  .trunkated-item{
+    cursor: pointer;
+    height: 38px;
+    display:block;
+    position: relative;
+    overflow:hidden;
+    z-index: 1040;
+  }
+  .fragebanken-trunkated-question{
+    cursor: pointer;
+    padding-top: 4px;
+    height: 38px;
+    display:block;
+    position: relative;
+    overflow:hidden;
+    z-index: 1040;
+  }
+  .question-buttons{
+    margin-top: 2px;
+  }
+  .sidebar-holder{
+    width: 100%;
+    padding: 5px 15px;
+  }
+  .textarea-resize1{
+    resize: vertical;
+  }
+  .textarea-resize2{
+    resize: none;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+</style>
 @endsection
 
 @section('content')
 <?php
 require_once '../vendor/fzaninotto/faker/src/autoload.php';
 $faker = Faker\Factory::create();
- ?>
-
-<div class="container" id="skapa">
+?>
+<div class="container" id="tipspromenad">
   <div class="row row-offcanvas row-offcanvas-right">
     <div class="col-xs-12 col-sm-8">
       <p>lorem ipsum dolor sit amet, consectetur adipisicing elit. cumque, laudantium reiciendis distinctio. repellat laudantium odio debitis doloremque velit qui nisi, est non ipsa. consequuntur, debitis!</p>
@@ -124,153 +127,147 @@ $faker = Faker\Factory::create();
         </div><!--  /.tab-ny-fraga -->
 
         <div role="tabpanel" class="tab-pane active" id="tab-fragebanken">
-        <div class="row">
-          <div class="col-sm-12">
+          <div class="row">
+            <div class="col-sm-12">
               <h1>Välj frågor från frågebanken</h1>
               <div class="btn btn-xs btn-primary" v-on="click: showSavedMsg">Visa spara skylten</div>
-          </div>
-          <div class="col-sm-12">
-            <br>
-            <div class="input-group">
-              <input type="text" class="form-control" v-model="searchQuery" placeholder="Sök bland frågorna...">
-              <div class="input-group-addon"><i class="fa fa-search"></i></div>
-            </div><!-- /.input-group -->
-          </div><!-- /.col-lg-6 -->
-        </div><!-- /.row-->
-         <div class="row">
+            </div>
+            <div class="col-sm-12">
+              <br>
+              <div class="input-group">
+                <input type="text" class="form-control" v-model="searchQuery" placeholder="Sök bland frågorna...">
+                <div class="input-group-addon"><i class="fa fa-search"></i></div>
+              </div><!-- /.input-group -->
+            </div><!-- /.col-lg-6 -->
+          </div><!-- /.row-->
+          <div class="row">
            <div class="col-xs-12">
              <table class="table table-striped table-hover">
               <thead>
-                <td>
+              <tr>
+                <th>
                   &nbsp;
-                </td>
-                <td>
+                </th>
+                <th>
                   Fråga
                   <div class="pull-right">
                     Sortera efter: <span class="orderBy" v-on="click: orderby = 'created_at', click: order = ! order">nyaste</span>
-                     -
+                    -
                     <span class="orderBy" v-on="click: orderby = 'tipspromenaderCount', click: order = ! order">mest använda</span>
-                     -
+                    -
                     <span class="orderBy" v-on="click: orderby = 'user.name', click: order = ! order">Skapare</span>
                   </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-repeat="question: allQuestions | setButtonPropertiesFilter | filterBy searchQuery | orderBy orderby order">
+                <td>
+                  <div id="addRemoveBtn@{{ question.id }}"
+                    class="btn btn-xs @{{ question.btnClasses }}" v-on="click: addQeuestion(question)">
+                    <i class="fa fa-plus"></i>
+                  </div>
+                  <div class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></div>
                 </td>
-              </thead>
-              <tbody>
-                <tr v-repeat="questions | filterBy searchQuery | orderBy orderby order">
-                  <td>
-                    <div class="btn btn-primary btn-xs"><i class="fa fa-plus"></i></div>
-                    <div class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></div>
-                  </td>
-                  <td>
+                <td>
 
-                    <div id="fragebanken-question-@{{id}}" class="fragebanken-trunkated-question trunkated" v-on="click: fragebankenExpand(id, $event)">
+                    <div id="fragebanken-question-@{{question.id}}" class="fragebanken-trunkated-question trunkated" v-on="click: fragebankenExpand(question.id, $event)">
                       <div class="trunkated-text">
-                        @{{ question }}
+                        id:@{{ question.id }}
+                        @{{ question.question }}
                         <ol class="ettkrysstva-list-lg">
-                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == '1'">
-                              @{{ answer1 }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : question.correct_answer == '1'">
+                            @{{ question.answer1 }}
                           </li>
-                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == 'x'">
-                            @{{ answerx }}
-                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : correct_answer == '2'">
-                            @{{ answer2 }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : question.correct_answer == 'x'">
+                            @{{ question.answerx }}
+                          <li class="ettkrysstva-list-item-lg" v-class="correct-answer : question.correct_answer == '2'">
+                              @{{ question.answer2 }}
                           </li>
                         </ol>
-                        <small class="pull-left text-gray-light">Denna fråga används i @{{ (tipspromenaderCount > 1 ) ? tipspromenaderCount + ' tipspromenader' : tipspromenaderCount + ' tipspromenad' }}</small>
-                        <small class="pull-right text-gray-light">Skapad av: @{{ user.name + ' ' + created_at_diffForHumans}}</small>
+                        <small class="pull-left text-gray-light">Denna fråga används i @{{ (question.tipspromenaderCount > 1 ) ? question.tipspromenaderCount + ' tipspromenader' : question.tipspromenaderCount + ' tipspromenad' }}</small>
+                        <small class="pull-right text-gray-light">Skapad av: @{{ question.user.name + ' ' + question.created_at_diffForHumans}}</small>
                       </div>
                     </div>
                   </td>
-                </tr>
-              </tbody>
-             </table>
-             <br><br>
-             <pre>
+                  </tr>
+                </tbody>
+              </table>
+              <br><br>
+              <pre>
                @{{ $data | json }}
              </pre>
            </div><!--  /.col-xs-12 -->
          </div><!--  /.row -->
-        </div><!--  /.tab-ny-fraga -->
-        <div role="tabpanel" class="tab-pane" id="tab-tipspromenader">
-          <h1>Välj en färdig tipspromenad</h1>
+       </div><!--  /.tab-ny-fraga -->
+       <div role="tabpanel" class="tab-pane" id="tab-tipspromenader">
+        <h1>Välj en färdig tipspromenad</h1>
+      </div><!--  /.tab-tipspromenader -->
+    </div><!--  /.tab-content -->
+  </div><!--/.col-sm-8 /.left -->
 
-        </div><!--  /.tab-tipspromenader -->
-      </div><!--  /.tab-content -->
-    </div><!--/.col-sm-8 /.left -->
 
-
-    <!--right sidebar-->
-    <div class="col-sm-4 canvas-full-height" id="sidebar">
-      <div class="row">
-        <div class="col-sm-12 bg-gray-lighter" id="sidebarAffix">
+  <!--right sidebar-->
+  <div class="col-sm-4 canvas-full-height" id="sidebar">
+    <div class="row">
+      <div class="col-sm-12 bg-gray-lighter" id="sidebarAffix">
         <div class="visible-xs" id="toggle-offcanvas-wrapper">
           <div id="toggle-offcanvas" data-toggle="offcanvas"><i class="fa fa-chevron-left"></i></div>
         </div>
-          <div class="">
-            <h1 class="text-gray-light" style="white-space: pre" id="tipspromenad-name">Min tipspromenad är asd asd asd</h1>
-            <button class="btn btn-info btn-xs" style="position: absolute; right: 10px; top: 10px;">
-              <i class="fa fa-pencil"></i>
-            </button>
-          </div>
-            <div id="ulScroll">
-              <div class="list-group">
-              @for ($i = 1; $i <= rand(7, 25); $i++)
-                <div class="list-group-item trunkated-item">
-                  <div class="row">
-                    <div class="col-xs-8 col-sm-7 col-md-8">
-                      <div class="selected-question-number pull-left">{{ $i }}.</div>
-                      <p class="list-group-item-text trunkated-text">
-                        op: {{ $i }} - {{ $faker->sentence($nbWords = $faker->numberBetween($min = 8, $max = 25)) }}
-                      </p>
-                    </div>
-                    <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light selected-question-buttons text-center">
-                      <div class="selected-question-right-answer pull-left">{{ $faker->randomElement($array = array ('1','X','2')) }}</div>
-                      <div class="btn-group elipsis-buttonelipsis-button" data-container="body"
-                        data-html="true" data-toggle="popover" data-placement="left"
-                        data-content="
-                          <i class='fa fa-pencil-square-o fa-2x text-primary text-hover pointer'
-                            data-toggle='tooltip' data-placement='top' title='Redigera fråga'
-                          ></i>
-                          <i class='fa fa-times fa-2x text-danger text-hover pointer'
-                          data-toggle='tooltip' data-placement='top' title='Ta bort fråga från din tipspromenad'
-                          ></i>
-                        ">
-                          <i class="fa fa-ellipsis-v fa-2x"></i>
-                      </div>
-                      <span>
-                        <i class="fa fa-arrows-v fa-2x sortable-handle"></i>
-                      </span>
-                    </div>
-                    <div class="col-xs-12 trunkated-text">
-                      <ol class="ettkrysstva-list">
-                        <li class="ettkrysstva-list-item">
-                          {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 15)) }}
-                        </li>
-                        <li class="ettkrysstva-list-item">
-                        Här är en nestad lista innuti denna &lt;li&gt;
-                        <ul>
-                          <li>nested list 1</li>
-                          <li>nested list 2</li>
-                          <li>nested list 3</li>
-                        </ul></li>
-                        <li class="ettkrysstva-list-item">
-                          {{ $faker->sentence($nbWords = $faker->numberBetween($min = 3, $max = 8)) }}
-                        </li>
-                      </ol>
-                    </div><!-- /.col-xs-12 -->
-                  </div><!-- /.row -->
-              </div><!-- /.list-group-item -->
-              @endfor
-            </div><!-- /.list-group -->
-         </div><!-- /.ulScroll -->
+        <div class="">
+        <h1 class="text-gray-light" style="white-space: pre" id="tipspromenad-name" data-active-tipspromenad="{{ $tipspromenad->id }}">{{ $tipspromenad->name }}</h1>
+          <button class="btn btn-info btn-xs" style="position: absolute; right: 10px; top: 10px;">
+            <i class="fa fa-pencil"></i>
+          </button>
         </div>
+        @if($tipspromenad->questions())
+
+        <selected-questions new-order-of-selected="@{{ setNewOrderOfSelectedQuestions }}" remove-question="@{{ removeQuestion }}" selected-questions="@{{ selectedQuestions }}"></selected-questions>
+
+        @else
+          <p>Lägg till frågor</p>
+        @endif
       </div>
-    </div><!--/left-->
-  </div><!--/row-->
-  <div class="saved-container">
-    <div class="alert alert-info center-block text-center saved-msg" v-class="in : savedMsg">Dina ändringar är nu sparade</div>
-  </div>
+    </div>
+  </div><!--/left-->
+</div><!--/row-->
+@if($tipspromenad->showHelp)
+<!-- skapatipspromenad -->
+<div class="modal fade" id="showHelp" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-8 col-xs-offset-2">
+                          <h1>Här gnuggas pedagogikens knölar</h1>
+                          <p>
+                            Vi får se till att göra någon slags enkel men tydlig förklaring på hur det fungerar här.
+                            Ska man kanske rent av försöka bryta ner det i fler steg?
+                          </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form>
+                <div class="form-group pull-left">
+                  <input id="showHelpAgain" name="mobile" type="checkbox" value="dont-show" class="input-md">
+                  <label for="showHelpAgain">Jag förstår, visa inte detta meddelande igen.</label>
+                </div>
+                </form>
+                <button type="button" class="btn btn-success" onclick="showHelpAgain()" data-dismiss="modal">Kanon, jag förstår!</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--// skapatipspromenad slut -->
+@endif
+<div class="saved-container">
+  <div class="alert alert-info center-block text-center saved-msg text-white bg-primary border-primary" v-class="in : savedMsg">Dina ändringar är nu sparade</div>
+</div>
 </div><!--/.container-->
+
 @endsection
 
 
@@ -279,65 +276,44 @@ $faker = Faker\Factory::create();
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="{{ asset('js/vendor/jquery.ui.touch-punch.min.js') }}"></script>
 
-<script src="{{ asset('js/bundle.js') }}"></script>
+<script src="{{ asset('js/tipspromenadVue.js') }}"></script>
 
 <script>
+@if($tipspromenad->showHelp)
+    $(window).load(function(){
+        $('#showHelp').modal('show');
+    });
 
-$('.trunkated-item').click(function(e) {
-  if($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')){
-    var h = $(this)[0].scrollHeight;
-
-    if($(this).hasClass('hide-trunkated')) {
-        $(this).animate({height:38},200)
-        .removeClass('hide-trunkated')
-        .addClass('trunkated');
-      } else {
-        console.log('scrollHeight: ' + h);
-        $(this).animate({height:h},200)
-        .addClass('hide-trunkated')
-        .removeClass('trunkated');
-      }
-  }
-});
-
-$(function() {
-    $( ".list-group" ).sortable({
-        connectWith: ".list-group",
-        handle: ".sortable-handle",
-        cancel: ".portlet-toggle",
-        placeholder: "selected-question-placeholder",
-        forcePlaceholderSize: true,
-        start: function(event, ui) {
-          var thisHeight = $(this).height();
-          if($(this).parent('.hide-trunkated').length){
-            console.log('this has been opend:' + thisHeight)
+    function showHelpAgain () {
+      if( $('input[id="showHelpAgain"]:checked').length > 0){
+        $.ajax({
+          type: "POST",
+          url: '{{ action('Frontend\SkapaTipspromenadController@dontShowHelpAgain') }}',
+          data: {
+            _token: $('meta[name="_token"]').attr('content'),
+            tipsID: {{ $tipspromenad->id }}
+          },
+          success : function(data){
+              console.log(data);
           }
-          console.log('start of sortable, thisHeight: ' + thisHeight);
-        },
-        stop: function(event, ui) {
-                $('.selected-question-number').each(function(idx){
-                    $(this).html(idx+1);
-                });
-            }
-      });
+        });
+      }
+    }
+@endif
 
-      $( ".list-group" ).disableSelection();
+  $(function() {
 
-      $( ".list-group-item" )
-        .addClass( "ui-widget ui-widget-content ui-helper-clearfix" );
+    // $( ".list-group" ).disableSelection()
+    $('[data-toggle="popover"]').popover();
 
+    $( ".list-group-item" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix" );
 
-  $('[data-toggle="popover"]').on('shown.bs.popover', function () {
-    console.log('popover is shown, init tooltip');
-    $('[data-toggle="tooltip"]').tooltip();
-  })
-
-  $('#tipspromenad-name').truncate({
-    width: 'auto',
-    token: '&hellip;',
-    side: 'right',
-    addtitle: true,
+    $('#tipspromenad-name').truncate({
+      width: 'auto',
+      token: '&hellip;',
+      side: 'right',
+      addtitle: true,
+    });
   });
-});
 </script>
 @endsection

@@ -159,7 +159,8 @@ return [
 		'App\Providers\MacroServiceProvider',
 		'Laravel\Socialite\SocialiteServiceProvider',
 		'HieuLe\Active\ActiveServiceProvider',
-		'Barryvdh\Debugbar\ServiceProvider'
+		'Barryvdh\Debugbar\ServiceProvider',
+		'Cviebrock\EloquentSluggable\SluggableServiceProvider'
 	],
 
 	/*

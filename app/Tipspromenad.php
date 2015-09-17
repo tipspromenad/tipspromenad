@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tipspromenad extends Model
 {
-       public $fillable = ['name', 'desciption'];
+      protected $casts = [
+              'order_of_questions' => 'array',
+          ];
+
+       public $fillable = ['user_id', 'idCode', 'name', 'slug', 'desciption', 'unique_hash_id', 'showHelp', 'order_of_questions'];
+
        public function snippet($attr, $max = 10, $strip = true)
        {
            $string = $this->$attr;
@@ -16,6 +21,23 @@ class Tipspromenad extends Model
            $snippet = substr($string, 0, $max);
            $snippet .= "...";
            return $snippet;
+       }
+
+       public function syncQ($idArray)
+       {
+        $arrString = [];
+        if(is_array($idArray)){
+          foreach ($idArray as $val) {
+            $arrString[] = (string)$val;
+          }
+        }
+        else{
+          $arrString = [(string)$idArray];
+          $idArray = [$idArray];
+        }
+
+         return [ $this->questions()->sync($idArray), $this->order_of_questions = $arrString, $this->save() ];
+
        }
 
        /**

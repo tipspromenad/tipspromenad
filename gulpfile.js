@@ -28,19 +28,13 @@ elixir(function(mix) {
             'frontend/main.js'
         ], 'public/js/frontend.js', 'resources/assets/js')
 
-        //VueJS scripts
-        .scripts([ //combine all VueJS - stuff
-            'VueJS.min.js',
-            'vue-resources.min.js',
-            // later on i will put all Vue-scripts here aswell.
-        ], 'public/js/vue.js', 'resources/assets/js/frontend/VueJS')
-
         /**
          * Skapa
          */
         .less([
             'frontend/skapa/skapa-all.less'
         ], 'public/css/skapa')
+
         .scripts([
             '../../plugins.js',
             'vendor/jquery.slimscroll.min.js',
@@ -48,7 +42,7 @@ elixir(function(mix) {
             'main.js',
         ], 'public/js/skapa.js', 'resources/assets/js/frontend/skapa')
 
-        .browserify('frontend/skapa/skapa.js')
+        .browserify('frontend/skapa/tipspromenadVue.js')
 
         /**
          * Backend

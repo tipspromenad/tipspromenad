@@ -57,7 +57,13 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
-                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#skapatipsmodal">Skapa tipspromenad</button>
+                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal"
+                    @if(Auth::user())
+                        data-target="#skapatipspromenad"
+                    @else
+                        data-target="#skapatipsmodal"
+                    @endif
+                        >Skapa tipspromenad</button>
                 </div><!--// col -->
                 <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
                     <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#gapatipsmodal">
@@ -131,7 +137,7 @@
                             <div class="col-xs-12 col-sm-5"> <!--// utan kontodelen -->
                                 <h4 class="text-primary text-center">Utan konto</h4>
                                 <button class="btn btn-primary knappar1 center-block"
-                                        data-dismiss="modal" data-toggle="modal" data-target="#skapautankonto"
+                                        data-dismiss="modal" data-toggle="modal" data-target="#skapatipspromenad"
                                 >
                                     <i class="fa fa-edit text-white"></i> Skapa tipspromenad<br> utan konto
                                 </button>
@@ -154,32 +160,41 @@
     </div> <!-- /.modal -->
     <!--// skapatipsmodalen slut -->
 
-    <!--// skapautankonto -->
-    <div class="modal fade" id="skapautankonto" role="dialog">
+    <!-- skapatipspromenad -->
+    <div class="modal fade" id="skapatipspromenad" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title">Skapa tipspromenad utan konto</h4>
+                    @if(Auth::user())
+                        <h4 class="modal-title">Skapa tipspromenad</h4>
+                    @else
+                        <h4 class="modal-title">Skapa tipspromenad utan konto</h4>
+                    @endif
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-xs-8 col-xs-offset-2">
-                                <form>
+                            @if(Auth::user())
+                                <h4 class="text-primary text-center">Skapa tipspromenad som: {{ Auth::user()->name }}</h4>
+                            @endif
+                                <form name="skaparedaninloggadForm" id="skaparedaninloggadForm" method="POST" action="{{ action('Frontend\SkapaTipspromenadController@store') }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
                                     <h3 class="text-primary text-center">Ange ett namn för din tipspromenad:</h3>
                                     <div class="form-group">
-                                        <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
+                                        <input id="tipsnamn" name="name" type="text" placeholder="" class="form-control input-md">
                                     </div>
                                     <h3 class="text-primary text-center">Aktivera mobil tipspromenad?</h3>
                                     <div class="form-group text-center">
-                                        <input id="mobiltips" name="" type="checkbox" class="input-md">
+                                        <input id="mobiltips" name="mobile" type="checkbox" value="1" class="input-md">
                                     </div>
                                     <h3 class="text-primary text-center">Sluttid?</h3>
                                     <div class="form-group">
-                                        <input id="tipsnamn" name="" type="text" placeholder="" class="form-control input-md">
+                                        <input id="sluttid" name="stop_date" type="text" placeholder="" class="form-control input-md">
                                     </div>
                                 </form>
                             </div>
@@ -187,13 +202,17 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#skapatipsmodal">Avbryt</button>
-                    <button type="button" class="btn btn-success">Skapa tipspromenad</button>
+                    @if(Auth::user())
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    @else
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#skapatipsmodal">Avbryt</button>
+                    @endif
+                    <button type="button" onclick="$('#skaparedaninloggadForm').submit();" class="btn btn-success">Skapa tipspromenad</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-    <!--// skapautankonto slut -->
+    <!--// skapatipspromenad slut -->
 
     <!--// gåtipsmodalen -->
     <div class="modal fade" id="gapatipsmodal" role="dialog">

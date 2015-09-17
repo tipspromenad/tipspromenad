@@ -24,6 +24,8 @@ Route::get('questions', function ()
     return view('frontend/questions');
 });
 
+Route::get('error', 'FrontendController@error');
+
 /**
  * These frontend controllers require the user to be logged in
  */

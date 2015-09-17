@@ -1,0 +1,8 @@
+<div>
+  {{ question.id }}
+  <i class="fa fa-pencil-square-o fa-2x text-primary text-hover pointer" alt="Redigera fråga" alt="Redigera fråga"
+  onclick="console.log('click pencil!')"
+  ></i><i data-question-id="{{ question.id }}" class="fa fa-remove fa-2x text-danger text-hover pointer" alt="Ta bort fråga" title="Ta bort fråga"
+  v-on="click: rmove()"
+  ></i>
+</div>

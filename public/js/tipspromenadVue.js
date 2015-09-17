@@ -1,69 +1,69 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
-var Vue = require('vue');
-new Vue({
-    el: '#skapa',
-
-    ready: function ready() {
-        this.fetchQuestions();
-    },
-
-    methods: {
-        fetchQuestions: function fetchQuestions() {
-            this.$http.get('api/fragor', function (questions) {
-                this.$set('questions', questions);
-            });
-        },
-        fragebankenExpand: function fragebankenExpand(id, e) {
-            var $this = $('#fragebanken-question-' + id);
-            var h = $this[0].scrollHeight;
-            if ($(e.target).is('.trunkated-text, .ettkrysstva-list, .ettkrysstva-list li')) {
-
-                if ($this.hasClass('hide-trunkated')) {
-                    // console.log('trunkate scrollHeight: ' + h);
-                    $this.animate({ height: 38 }, 200).removeClass('hide-trunkated').addClass('trunkated');
-                } else {
-                    // console.log('expand scrollHeight: ' + h);
-                    $this.animate({ height: h }, 200).addClass('hide-trunkated').removeClass('trunkated');
-                }
-            }
-        }
-    }
-});
-
-},{"vue":67}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
 var queue = [];
 var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
 
 function drainQueue() {
     if (draining) {
         return;
     }
+    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
-    var currentQueue;
+
     var len = queue.length;
     while(len) {
         currentQueue = queue;
         queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
+        queueIndex = -1;
         len = queue.length;
     }
+    currentQueue = null;
     draining = false;
+    clearTimeout(timeout);
 }
+
 process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
         setTimeout(drainQueue, 0);
     }
 };
 
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
@@ -85,14 +85,887 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 process.umask = function() { return 0; };
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
+/**
+ * Service for sending network requests.
+ */
+
+var xhr = require('./lib/xhr');
+var jsonp = require('./lib/jsonp');
+var Promise = require('./lib/promise');
+
+module.exports = function (_) {
+
+    var originUrl = _.url.parse(location.href);
+    var jsonType = {'Content-Type': 'application/json;charset=utf-8'};
+
+    function Http(url, options) {
+
+        var promise;
+
+        if (_.isPlainObject(url)) {
+            options = url;
+            url = '';
+        }
+
+        options = _.extend({url: url}, options);
+        options = _.extend(true, {},
+            Http.options, this.options, options
+        );
+
+        if (options.crossOrigin === null) {
+            options.crossOrigin = crossOrigin(options.url);
+        }
+
+        options.method = options.method.toUpperCase();
+        options.headers = _.extend({}, Http.headers.common,
+            !options.crossOrigin ? Http.headers.custom : {},
+            Http.headers[options.method.toLowerCase()],
+            options.headers
+        );
+
+        if (_.isPlainObject(options.data) && /^(GET|JSONP)$/i.test(options.method)) {
+            _.extend(options.params, options.data);
+            delete options.data;
+        }
+
+        if (options.emulateHTTP && !options.crossOrigin && /^(PUT|PATCH|DELETE)$/i.test(options.method)) {
+            options.headers['X-HTTP-Method-Override'] = options.method;
+            options.method = 'POST';
+        }
+
+        if (options.emulateJSON && _.isPlainObject(options.data)) {
+            options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            options.data = _.url.params(options.data);
+        }
+
+        if (_.isObject(options.data) && /FormData/i.test(options.data.toString())) {
+            delete options.headers['Content-Type'];
+        }
+
+        if (_.isPlainObject(options.data)) {
+            options.data = JSON.stringify(options.data);
+        }
+
+        promise = (options.method == 'JSONP' ? jsonp : xhr).call(this.vm, _, options);
+        promise = extendPromise(promise.then(transformResponse, transformResponse), this.vm);
+
+        if (options.success) {
+            promise = promise.success(options.success);
+        }
+
+        if (options.error) {
+            promise = promise.error(options.error);
+        }
+
+        return promise;
+    }
+
+    function extendPromise(promise, vm) {
+
+        promise.success = function (fn) {
+
+            return extendPromise(promise.then(function (response) {
+                return fn.call(vm, response.data, response.status, response) || response;
+            }), vm);
+
+        };
+
+        promise.error = function (fn) {
+
+            return extendPromise(promise.then(undefined, function (response) {
+                return fn.call(vm, response.data, response.status, response) || response;
+            }), vm);
+
+        };
+
+        promise.always = function (fn) {
+
+            var cb = function (response) {
+                return fn.call(vm, response.data, response.status, response) || response;
+            };
+
+            return extendPromise(promise.then(cb, cb), vm);
+        };
+
+        return promise;
+    }
+
+    function transformResponse(response) {
+
+        try {
+            response.data = JSON.parse(response.responseText);
+        } catch (e) {
+            response.data = response.responseText;
+        }
+
+        return response.ok ? response : Promise.reject(response);
+    }
+
+    function crossOrigin(url) {
+
+        var requestUrl = _.url.parse(url);
+
+        return (requestUrl.protocol !== originUrl.protocol || requestUrl.host !== originUrl.host);
+    }
+
+    Http.options = {
+        method: 'get',
+        params: {},
+        data: '',
+        xhr: null,
+        jsonp: 'callback',
+        beforeSend: null,
+        crossOrigin: null,
+        emulateHTTP: false,
+        emulateJSON: false
+    };
+
+    Http.headers = {
+        put: jsonType,
+        post: jsonType,
+        patch: jsonType,
+        delete: jsonType,
+        common: {'Accept': 'application/json, text/plain, */*'},
+        custom: {'X-Requested-With': 'XMLHttpRequest'}
+    };
+
+    ['get', 'put', 'post', 'patch', 'delete', 'jsonp'].forEach(function (method) {
+
+        Http[method] = function (url, data, success, options) {
+
+            if (_.isFunction(data)) {
+                options = success;
+                success = data;
+                data = undefined;
+            }
+
+            return this(url, _.extend({method: method, data: data, success: success}, options));
+        };
+    });
+
+    return _.http = Http;
+};
+
+},{"./lib/jsonp":4,"./lib/promise":5,"./lib/xhr":7}],3:[function(require,module,exports){
+/**
+ * Install plugin.
+ */
+
+function install(Vue) {
+
+    var _ = require('./lib/util')(Vue);
+
+    Vue.url = require('./url')(_);
+    Vue.http = require('./http')(_);
+    Vue.resource = require('./resource')(_);
+
+    Object.defineProperties(Vue.prototype, {
+
+        $url: {
+            get: function () {
+                return this._url || (this._url = _.options(Vue.url, this, this.$options.url));
+            }
+        },
+
+        $http: {
+            get: function () {
+                return this._http || (this._http = _.options(Vue.http, this, this.$options.http));
+            }
+        },
+
+        $resource: {
+            get: function () {
+                return Vue.resource.bind(this);
+            }
+        }
+
+    });
+}
+
+if (window.Vue) {
+    Vue.use(install);
+}
+
+module.exports = install;
+},{"./http":2,"./lib/util":6,"./resource":8,"./url":9}],4:[function(require,module,exports){
+/**
+ * JSONP request.
+ */
+
+var Promise = require('./promise');
+
+module.exports = function (_, options) {
+
+    var callback = '_jsonp' + Math.random().toString(36).substr(2), response = {}, script, body;
+
+    options.params[options.jsonp] = callback;
+
+    if (_.isFunction(options.beforeSend)) {
+        options.beforeSend.call(this, {}, options);
+    }
+
+    return new Promise(function (resolve, reject) {
+
+        script = document.createElement('script');
+        script.src = _.url(options);
+        script.type = 'text/javascript';
+        script.async = true;
+
+        window[callback] = function (data) {
+            body = data;
+        };
+
+        var handler = function (event) {
+
+            delete window[callback];
+            document.body.removeChild(script);
+
+            if (event.type === 'load' && !body) {
+                event.type = 'error';
+            }
+
+            response.ok = event.type !== 'error';
+            response.status = response.ok ? 200 : 404;
+            response.responseText = body ? body : event.type;
+
+            (response.ok ? resolve : reject)(response);
+        };
+
+        script.onload = handler;
+        script.onerror = handler;
+
+        document.body.appendChild(script);
+    });
+
+};
+
+},{"./promise":5}],5:[function(require,module,exports){
+/**
+ * Promises/A+ polyfill v1.1.0 (https://github.com/bramstein/promis)
+ */
+
+var RESOLVED = 0;
+var REJECTED = 1;
+var PENDING  = 2;
+
+function Promise(executor) {
+
+    this.state = PENDING;
+    this.value = undefined;
+    this.deferred = [];
+
+    var promise = this;
+
+    try {
+        executor(function (x) {
+            promise.resolve(x);
+        }, function (r) {
+            promise.reject(r);
+        });
+    } catch (e) {
+        promise.reject(e);
+    }
+}
+
+Promise.reject = function (r) {
+    return new Promise(function (resolve, reject) {
+        reject(r);
+    });
+};
+
+Promise.resolve = function (x) {
+    return new Promise(function (resolve, reject) {
+        resolve(x);
+    });
+};
+
+Promise.all = function all(iterable) {
+    return new Promise(function (resolve, reject) {
+        var count = 0,
+            result = [];
+
+        if (iterable.length === 0) {
+            resolve(result);
+        }
+
+        function resolver(i) {
+            return function (x) {
+                result[i] = x;
+                count += 1;
+
+                if (count === iterable.length) {
+                    resolve(result);
+                }
+            };
+        }
+
+        for (var i = 0; i < iterable.length; i += 1) {
+            iterable[i].then(resolver(i), reject);
+        }
+    });
+};
+
+Promise.race = function race(iterable) {
+    return new Promise(function (resolve, reject) {
+        for (var i = 0; i < iterable.length; i += 1) {
+            iterable[i].then(resolve, reject);
+        }
+    });
+};
+
+var p = Promise.prototype;
+
+p.resolve = function resolve(x) {
+    var promise = this;
+
+    if (promise.state === PENDING) {
+        if (x === promise) {
+            throw new TypeError('Promise settled with itself.');
+        }
+
+        var called = false;
+
+        try {
+            var then = x && x['then'];
+
+            if (x !== null && typeof x === 'object' && typeof then === 'function') {
+                then.call(x, function (x) {
+                    if (!called) {
+                        promise.resolve(x);
+                    }
+                    called = true;
+
+                }, function (r) {
+                    if (!called) {
+                        promise.reject(r);
+                    }
+                    called = true;
+                });
+                return;
+            }
+        } catch (e) {
+            if (!called) {
+                promise.reject(e);
+            }
+            return;
+        }
+        promise.state = RESOLVED;
+        promise.value = x;
+        promise.notify();
+    }
+};
+
+p.reject = function reject(reason) {
+    var promise = this;
+
+    if (promise.state === PENDING) {
+        if (reason === promise) {
+            throw new TypeError('Promise settled with itself.');
+        }
+
+        promise.state = REJECTED;
+        promise.value = reason;
+        promise.notify();
+    }
+};
+
+p.notify = function notify() {
+    var promise = this;
+
+    async(function () {
+        if (promise.state !== PENDING) {
+            while (promise.deferred.length) {
+                var deferred = promise.deferred.shift(),
+                    onResolved = deferred[0],
+                    onRejected = deferred[1],
+                    resolve = deferred[2],
+                    reject = deferred[3];
+
+                try {
+                    if (promise.state === RESOLVED) {
+                        if (typeof onResolved === 'function') {
+                            resolve(onResolved.call(undefined, promise.value));
+                        } else {
+                            resolve(promise.value);
+                        }
+                    } else if (promise.state === REJECTED) {
+                        if (typeof onRejected === 'function') {
+                            resolve(onRejected.call(undefined, promise.value));
+                        } else {
+                            reject(promise.value);
+                        }
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            }
+        }
+    });
+};
+
+p.catch = function (onRejected) {
+    return this.then(undefined, onRejected);
+};
+
+p.then = function then(onResolved, onRejected) {
+    var promise = this;
+
+    return new Promise(function (resolve, reject) {
+        promise.deferred.push([onResolved, onRejected, resolve, reject]);
+        promise.notify();
+    });
+};
+
+var queue = [];
+var async = function (callback) {
+    queue.push(callback);
+
+    if (queue.length === 1) {
+        async.async();
+    }
+};
+
+async.run = function () {
+    while (queue.length) {
+        queue[0]();
+        queue.shift();
+    }
+};
+
+if (window.MutationObserver) {
+    var el = document.createElement('div');
+    var mo = new MutationObserver(async.run);
+
+    mo.observe(el, {
+        attributes: true
+    });
+
+    async.async = function () {
+        el.setAttribute("x", 0);
+    };
+} else {
+    async.async = function () {
+        setTimeout(async.run);
+    };
+}
+
+module.exports = window.Promise || Promise;
+
+},{}],6:[function(require,module,exports){
+/**
+ * Utility functions.
+ */
+
+module.exports = function (Vue) {
+
+    var _ = Vue.util.extend({}, Vue.util);
+
+    _.isString = function (value) {
+        return typeof value === 'string';
+    };
+
+    _.isFunction = function (value) {
+        return typeof value === 'function';
+    };
+
+    _.options = function (fn, obj, options) {
+
+        options = options || {};
+
+        if (_.isFunction(options)) {
+            options = options.call(obj);
+        }
+
+        return _.extend(fn.bind({vm: obj, options: options}), fn, {options: options});
+    };
+
+    _.each = function (obj, iterator) {
+
+        var i, key;
+
+        if (typeof obj.length == 'number') {
+            for (i = 0; i < obj.length; i++) {
+                iterator.call(obj[i], obj[i], i);
+            }
+        } else if (_.isObject(obj)) {
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    iterator.call(obj[key], obj[key], key);
+                }
+            }
+        }
+
+        return obj;
+    };
+
+    _.extend = function (target) {
+
+        var array = [], args = array.slice.call(arguments, 1), deep;
+
+        if (typeof target == 'boolean') {
+            deep = target;
+            target = args.shift();
+        }
+
+        args.forEach(function (arg) {
+            extend(target, arg, deep);
+        });
+
+        return target;
+    };
+
+    function extend(target, source, deep) {
+        for (var key in source) {
+            if (deep && (_.isPlainObject(source[key]) || _.isArray(source[key]))) {
+                if (_.isPlainObject(source[key]) && !_.isPlainObject(target[key])) {
+                    target[key] = {};
+                }
+                if (_.isArray(source[key]) && !_.isArray(target[key])) {
+                    target[key] = [];
+                }
+                extend(target[key], source[key], deep);
+            } else if (source[key] !== undefined) {
+                target[key] = source[key];
+            }
+        }
+    }
+
+    return _;
+};
+
+},{}],7:[function(require,module,exports){
+/**
+ * XMLHttp request.
+ */
+
+var Promise = require('./promise');
+var XDomain = window.XDomainRequest;
+
+module.exports = function (_, options) {
+
+    var request = new XMLHttpRequest(), promise;
+
+    if (XDomain && options.crossOrigin) {
+        request = new XDomainRequest(); options.headers = {};
+    }
+
+    if (_.isPlainObject(options.xhr)) {
+        _.extend(request, options.xhr);
+    }
+
+    if (_.isFunction(options.beforeSend)) {
+        options.beforeSend.call(this, request, options);
+    }
+
+    promise = new Promise(function (resolve, reject) {
+
+        request.open(options.method, _.url(options), true);
+
+        _.each(options.headers, function (value, header) {
+            request.setRequestHeader(header, value);
+        });
+
+        var handler = function (event) {
+
+            request.ok = event.type === 'load';
+
+            if (request.ok && request.status) {
+                request.ok = request.status >= 200 && request.status < 300;
+            }
+
+            (request.ok ? resolve : reject)(request);
+        };
+
+        request.onload = handler;
+        request.onabort = handler;
+        request.onerror = handler;
+
+        request.send(options.data);
+    });
+
+    return promise;
+};
+
+},{"./promise":5}],8:[function(require,module,exports){
+/**
+ * Service for interacting with RESTful services.
+ */
+
+module.exports = function (_) {
+
+    function Resource(url, params, actions) {
+
+        var self = this, resource = {};
+
+        actions = _.extend({},
+            Resource.actions,
+            actions
+        );
+
+        _.each(actions, function (action, name) {
+
+            action = _.extend(true, {url: url, params: params || {}}, action);
+
+            resource[name] = function () {
+                return (self.$http || _.http)(opts(action, arguments));
+            };
+        });
+
+        return resource;
+    }
+
+    function opts(action, args) {
+
+        var options = _.extend({}, action), params = {}, data, success, error;
+
+        switch (args.length) {
+
+            case 4:
+
+                error = args[3];
+                success = args[2];
+
+            case 3:
+            case 2:
+
+                if (_.isFunction(args[1])) {
+
+                    if (_.isFunction(args[0])) {
+
+                        success = args[0];
+                        error = args[1];
+
+                        break;
+                    }
+
+                    success = args[1];
+                    error = args[2];
+
+                } else {
+
+                    params = args[0];
+                    data = args[1];
+                    success = args[2];
+
+                    break;
+                }
+
+            case 1:
+
+                if (_.isFunction(args[0])) {
+                    success = args[0];
+                } else if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+                    data = args[0];
+                } else {
+                    params = args[0];
+                }
+
+                break;
+
+            case 0:
+
+                break;
+
+            default:
+
+                throw 'Expected up to 4 arguments [params, data, success, error], got ' + args.length + ' arguments';
+        }
+
+        options.data = data;
+        options.params = _.extend({}, options.params, params);
+
+        if (success) {
+            options.success = success;
+        }
+
+        if (error) {
+            options.error = error;
+        }
+
+        return options;
+    }
+
+    Resource.actions = {
+
+        get: {method: 'GET'},
+        save: {method: 'POST'},
+        query: {method: 'GET'},
+        update: {method: 'PUT'},
+        remove: {method: 'DELETE'},
+        delete: {method: 'DELETE'}
+
+    };
+
+    return _.resource = Resource;
+};
+
+},{}],9:[function(require,module,exports){
+/**
+ * Service for URL templating.
+ */
+
+var ie = document.documentMode;
+var el = document.createElement('a');
+
+module.exports = function (_) {
+
+    function Url(url, params) {
+
+        var urlParams = {}, queryParams = {}, options = url, query;
+
+        if (!_.isPlainObject(options)) {
+            options = {url: url, params: params};
+        }
+
+        options = _.extend(true, {},
+            Url.options, this.options, options
+        );
+
+        url = options.url.replace(/(\/?):([a-z]\w*)/gi, function (match, slash, name) {
+
+            if (options.params[name]) {
+                urlParams[name] = true;
+                return slash + encodeUriSegment(options.params[name]);
+            }
+
+            return '';
+        });
+
+        if (_.isString(options.root) && !url.match(/^(https?:)?\//)) {
+            url = options.root + '/' + url;
+        }
+
+        _.each(options.params, function (value, key) {
+            if (!urlParams[key]) {
+                queryParams[key] = value;
+            }
+        });
+
+        query = Url.params(queryParams);
+
+        if (query) {
+            url += (url.indexOf('?') == -1 ? '?' : '&') + query;
+        }
+
+        return url;
+    }
+
+    /**
+     * Url options.
+     */
+
+    Url.options = {
+        url: '',
+        root: null,
+        params: {}
+    };
+
+    /**
+     * Encodes a Url parameter string.
+     *
+     * @param {Object} obj
+     */
+
+    Url.params = function (obj) {
+
+        var params = [];
+
+        params.add = function (key, value) {
+
+            if (_.isFunction (value)) {
+                value = value();
+            }
+
+            if (value === null) {
+                value = '';
+            }
+
+            this.push(encodeUriSegment(key) + '=' + encodeUriSegment(value));
+        };
+
+        serialize(params, obj);
+
+        return params.join('&');
+    };
+
+    /**
+     * Parse a URL and return its components.
+     *
+     * @param {String} url
+     */
+
+    Url.parse = function (url) {
+
+        if (ie) {
+            el.href = url;
+            url = el.href;
+        }
+
+        el.href = url;
+
+        return {
+            href: el.href,
+            protocol: el.protocol ? el.protocol.replace(/:$/, '') : '',
+            port: el.port,
+            host: el.host,
+            hostname: el.hostname,
+            pathname: el.pathname.charAt(0) === '/' ? el.pathname : '/' + el.pathname,
+            search: el.search ? el.search.replace(/^\?/, '') : '',
+            hash: el.hash ? el.hash.replace(/^#/, '') : ''
+        };
+    };
+
+    function serialize(params, obj, scope) {
+
+        var array = _.isArray(obj), plain = _.isPlainObject(obj), hash;
+
+        _.each(obj, function (value, key) {
+
+            hash = _.isObject(value) || _.isArray(value);
+
+            if (scope) {
+                key = scope + '[' + (plain || hash ? key : '') + ']';
+            }
+
+            if (!scope && array) {
+                params.add(value.name, value.value);
+            } else if (hash) {
+                serialize(params, value, key);
+            } else {
+                params.add(key, value);
+            }
+        });
+    }
+
+    function encodeUriSegment(value) {
+
+        return encodeUriQuery(value, true).
+            replace(/%26/gi, '&').
+            replace(/%3D/gi, '=').
+            replace(/%2B/gi, '+');
+    }
+
+    function encodeUriQuery(value, spaces) {
+
+        return encodeURIComponent(value).
+            replace(/%40/gi, '@').
+            replace(/%3A/gi, ':').
+            replace(/%24/g, '$').
+            replace(/%2C/gi, ',').
+            replace(/%20/g, (spaces ? '%20' : '+'));
+    }
+
+    return _.url = Url;
+};
+
+},{}],10:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -109,13 +982,15 @@ var _ = require('../util')
 exports.$addChild = function (opts, BaseCtor) {
   BaseCtor = BaseCtor || _.Vue
   opts = opts || {}
-  var parent = this
   var ChildVue
+  var parent = this
+  // transclusion context
+  var context = opts._context || parent
   var inherit = opts.inherit !== undefined
     ? opts.inherit
     : BaseCtor.options.inherit
   if (inherit) {
-    var ctors = parent._childCtors
+    var ctors = context._childCtors
     ChildVue = ctors[BaseCtor.cid]
     if (!ChildVue) {
       var optionName = BaseCtor.options.name
@@ -129,9 +1004,7 @@ exports.$addChild = function (opts, BaseCtor) {
       )()
       ChildVue.options = BaseCtor.options
       ChildVue.linker = BaseCtor.linker
-      // important: transcluded inline repeaters should
-      // inherit from outer scope rather than host
-      ChildVue.prototype = opts._context || this
+      ChildVue.prototype = context
       ctors[BaseCtor.cid] = ChildVue
     }
   } else {
@@ -143,7 +1016,7 @@ exports.$addChild = function (opts, BaseCtor) {
   return child
 }
 
-},{"../util":64}],4:[function(require,module,exports){
+},{"../util":71}],11:[function(require,module,exports){
 var Watcher = require('../watcher')
 var Path = require('../parsers/path')
 var textParser = require('../parsers/text')
@@ -219,15 +1092,12 @@ exports.$delete = function (key) {
 
 exports.$watch = function (exp, cb, options) {
   var vm = this
-  var wrappedCb = function (val, oldVal) {
-    cb.call(vm, val, oldVal)
-  }
-  var watcher = new Watcher(vm, exp, wrappedCb, {
+  var watcher = new Watcher(vm, exp, cb, {
     deep: options && options.deep,
     user: !options || options.user !== false
   })
   if (options && options.immediate) {
-    wrappedCb(watcher.value)
+    cb.call(vm, watcher.value)
   }
   return function unwatchFn () {
     watcher.teardown()
@@ -299,7 +1169,7 @@ exports.$log = function (path) {
   console.log(data)
 }
 
-},{"../parsers/directive":52,"../parsers/expression":53,"../parsers/path":54,"../parsers/text":56,"../watcher":68}],5:[function(require,module,exports){
+},{"../parsers/directive":59,"../parsers/expression":60,"../parsers/path":61,"../parsers/text":63,"../watcher":75}],12:[function(require,module,exports){
 var _ = require('../util')
 var transition = require('../transition')
 
@@ -403,7 +1273,7 @@ exports.$remove = function (cb, withTransition) {
     if (cb) cb()
   }
   if (
-    this._isBlock &&
+    this._isFragment &&
     !this._blockFragment.hasChildNodes()
   ) {
     op = withTransition === false
@@ -441,7 +1311,7 @@ function insert (vm, target, cb, withTransition, op1, op2) {
     !targetIsDetached &&
     !vm._isAttached &&
     !_.inDoc(vm.$el)
-  if (vm._isBlock) {
+  if (vm._isFragment) {
     blockOp(vm, target, op, cb)
   } else {
     op(vm.$el, target, vm, cb)
@@ -453,7 +1323,7 @@ function insert (vm, target, cb, withTransition, op1, op2) {
 }
 
 /**
- * Execute a transition operation on a block instance,
+ * Execute a transition operation on a fragment instance,
  * iterating through all its block nodes.
  *
  * @param {Vue} vm
@@ -463,8 +1333,8 @@ function insert (vm, target, cb, withTransition, op1, op2) {
  */
 
 function blockOp (vm, target, op, cb) {
-  var current = vm._blockStart
-  var end = vm._blockEnd
+  var current = vm._fragmentStart
+  var end = vm._fragmentEnd
   var next
   while (next !== end) {
     next = current.nextSibling
@@ -527,7 +1397,7 @@ function remove (el, vm, cb) {
   if (cb) cb()
 }
 
-},{"../transition":57,"../util":64}],6:[function(require,module,exports){
+},{"../transition":64,"../util":71}],13:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -703,7 +1573,7 @@ function modifyListenerCount (vm, event, count) {
   }
 }
 
-},{"../util":64}],7:[function(require,module,exports){
+},{"../util":71}],14:[function(require,module,exports){
 var _ = require('../util')
 var config = require('../config')
 
@@ -824,7 +1694,7 @@ config._assetTypes.forEach(function (type) {
   }
 })
 
-},{"../compiler":13,"../config":15,"../parsers/directive":52,"../parsers/expression":53,"../parsers/path":54,"../parsers/template":55,"../parsers/text":56,"../util":64}],8:[function(require,module,exports){
+},{"../compiler":20,"../config":22,"../parsers/directive":59,"../parsers/expression":60,"../parsers/path":61,"../parsers/template":62,"../parsers/text":63,"../util":71}],15:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -892,11 +1762,11 @@ exports.$destroy = function (remove, deferCleanup) {
  */
 
 exports.$compile = function (el, host) {
-  return compiler.compile(el, this.$options, true, host)(this, el)
+  return compiler.compile(el, this.$options, true)(this, el, host)
 }
 
 }).call(this,require('_process'))
-},{"../compiler":13,"../util":64,"_process":2}],9:[function(require,module,exports){
+},{"../compiler":20,"../util":71,"_process":1}],16:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -910,92 +1780,95 @@ var config = require('./config')
 var queue = []
 var userQueue = []
 var has = {}
+var circular = {}
 var waiting = false
-var flushing = false
 var internalQueueDepleted = false
 
 /**
  * Reset the batcher's state.
  */
 
-function reset () {
+function resetBatcherState () {
   queue = []
   userQueue = []
   has = {}
-  waiting = flushing = internalQueueDepleted = false
+  circular = {}
+  waiting = internalQueueDepleted = false
 }
 
 /**
- * Flush both queues and run the jobs.
+ * Flush both queues and run the watchers.
  */
 
-function flush () {
-  flushing = true
-  run(queue)
+function flushBatcherQueue () {
+  runBatcherQueue(queue)
   internalQueueDepleted = true
-  run(userQueue)
-  reset()
+  runBatcherQueue(userQueue)
+  resetBatcherState()
 }
 
 /**
- * Run the jobs in a single queue.
+ * Run the watchers in a single queue.
  *
  * @param {Array} queue
  */
 
-function run (queue) {
-  // do not cache length because more jobs might be pushed
-  // as we run existing jobs
+function runBatcherQueue (queue) {
+  // do not cache length because more watchers might be pushed
+  // as we run existing watchers
   for (var i = 0; i < queue.length; i++) {
-    queue[i].run()
+    var watcher = queue[i]
+    var id = watcher.id
+    has[id] = null
+    watcher.run()
+    // in dev build, check and stop circular updates.
+    if (process.env.NODE_ENV !== 'production' && has[id] != null) {
+      circular[id] = (circular[id] || 0) + 1
+      if (circular[id] > config._maxUpdateCount) {
+        queue.splice(has[id], 1)
+        _.warn(
+          'You may have an infinite update loop for watcher ' +
+          'with expression: ' + watcher.expression
+        )
+      }
+    }
   }
 }
 
 /**
- * Push a job into the job queue.
+ * Push a watcher into the watcher queue.
  * Jobs with duplicate IDs will be skipped unless it's
  * pushed when the queue is being flushed.
  *
- * @param {Object} job
+ * @param {Watcher} watcher
  *   properties:
- *   - {String|Number} id
- *   - {Function}      run
+ *   - {Number} id
+ *   - {Function} run
  */
 
-exports.push = function (job) {
-  var id = job.id
-  if (!id || !has[id] || flushing) {
-    if (!has[id]) {
-      has[id] = 1
-    } else {
-      has[id]++
-      // detect possible infinite update loops
-      if (has[id] > config._maxUpdateCount) {
-        process.env.NODE_ENV !== 'production' && _.warn(
-          'You may have an infinite update loop for the ' +
-          'watcher with expression: "' + job.expression + '".'
-        )
-        return
-      }
-    }
-    // A user watcher callback could trigger another
-    // directive update during the flushing; at that time
-    // the directive queue would already have been run, so
-    // we call that update immediately as it is pushed.
-    if (flushing && !job.user && internalQueueDepleted) {
-      job.run()
+exports.push = function (watcher) {
+  var id = watcher.id
+  if (has[id] == null) {
+    // if an internal watcher is pushed, but the internal
+    // queue is already depleted, we run it immediately.
+    if (internalQueueDepleted && !watcher.user) {
+      watcher.run()
       return
     }
-    ;(job.user ? userQueue : queue).push(job)
+    // push watcher into appropriate queue
+    var q = watcher.user ? userQueue : queue
+    has[id] = q.length
+    q.push(watcher)
+    // queue the flush
     if (!waiting) {
       waiting = true
-      _.nextTick(flush)
+      _.nextTick(flushBatcherQueue)
     }
   }
 }
 
 }).call(this,require('_process'))
-},{"./config":15,"./util":64,"_process":2}],10:[function(require,module,exports){
+},{"./config":22,"./util":71,"_process":1}],17:[function(require,module,exports){
 /**
  * A doubly linked list-based Least Recently Used (LRU)
  * cache. Will keep most recently used items while
@@ -1013,7 +1886,7 @@ function Cache (limit) {
   this.size = 0
   this.limit = limit
   this.head = this.tail = undefined
-  this._keymap = {}
+  this._keymap = Object.create(null)
 }
 
 var p = Cache.prototype
@@ -1109,7 +1982,7 @@ p.get = function (key, returnEntry) {
 
 module.exports = Cache
 
-},{}],11:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var textParser = require('../parsers/text')
@@ -1251,9 +2124,14 @@ function makePropsLinkFn (props) {
         }
       } else {
         // literal, cast it and just set once
-        value = options.type === Boolean && prop.raw === ''
+        var raw = prop.raw
+        value = options.type === Boolean && raw === ''
           ? true
-          : _.toBoolean(_.toNumber(prop.raw))
+          // do not cast emptry string.
+          // _.toNumber casts empty string to 0.
+          : raw.trim()
+            ? _.toBoolean(_.toNumber(raw))
+            : raw
         _.initProp(vm, prop, value)
       }
     }
@@ -1268,13 +2146,12 @@ function makePropsLinkFn (props) {
  */
 
 function getDefault (options) {
-  // absent boolean value
-  if (options.type === Boolean) {
-    return false
-  }
   // no default, return undefined
   if (!options.hasOwnProperty('default')) {
-    return
+    // absent boolean value defaults to false
+    return options.type === Boolean
+      ? false
+      : undefined
   }
   var def = options.default
   // warn against non-factory defaults for Object & Array
@@ -1292,7 +2169,7 @@ function getDefault (options) {
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"../directives/prop":31,"../parsers/path":54,"../parsers/text":56,"../util":64,"_process":2}],12:[function(require,module,exports){
+},{"../config":22,"../directives/prop":38,"../parsers/path":61,"../parsers/text":63,"../util":71,"_process":1}],19:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compileProps = require('./compile-props')
@@ -1323,11 +2200,10 @@ var terminalDirectives = [
  * @param {Element|DocumentFragment} el
  * @param {Object} options
  * @param {Boolean} partial
- * @param {Vue} [host] - host vm of transcluded content
  * @return {Function}
  */
 
-exports.compile = function (el, options, partial, host) {
+exports.compile = function (el, options, partial) {
   // link function for the node itself.
   var nodeLinkFn = partial || !options._asComponent
     ? compileNode(el, options)
@@ -1347,10 +2223,11 @@ exports.compile = function (el, options, partial, host) {
    *
    * @param {Vue} vm
    * @param {Element|DocumentFragment} el
+   * @param {Vue} [host] - host vm of transcluded content
    * @return {Function|undefined}
    */
 
-  return function compositeLinkFn (vm, el) {
+  return function compositeLinkFn (vm, el, host) {
     // cache childNodes before linking parent, fix #657
     var childNodes = _.toArray(el.childNodes)
     // link
@@ -1442,12 +2319,7 @@ exports.compileAndLinkProps = function (vm, el, props) {
  * 2. attrs on the component template root node, if
  *    replace:true (child scope)
  *
- * If this is a block instance, we only need to compile 1.
- *
- * This function does compile and link at the same time,
- * since root linkers can not be reused. It returns the
- * unlink function for potential context directives on the
- * container.
+ * If this is a fragment instance, we only need to compile 1.
  *
  * @param {Vue} vm
  * @param {Element} el
@@ -1455,13 +2327,13 @@ exports.compileAndLinkProps = function (vm, el, props) {
  * @return {Function}
  */
 
-exports.compileAndLinkRoot = function (vm, el, options) {
+exports.compileRoot = function (el, options) {
   var containerAttrs = options._containerAttrs
   var replacerAttrs = options._replacerAttrs
   var contextLinkFn, replacerLinkFn
 
   // only need to compile other attributes for
-  // non-block instances
+  // non-fragment instances
   if (el.nodeType !== 11) {
     // for components, container and replacer need to be
     // compiled separately and linked in different scopes.
@@ -1476,27 +2348,29 @@ exports.compileAndLinkRoot = function (vm, el, options) {
       }
     } else {
       // non-component, just compile as a normal element.
-      replacerLinkFn = compileDirectives(el, options)
+      replacerLinkFn = compileDirectives(el.attributes, options)
     }
   }
 
-  // link context scope dirs
-  var context = vm._context
-  var contextDirs
-  if (context && contextLinkFn) {
-    contextDirs = linkAndCapture(function () {
-      contextLinkFn(context, el)
-    }, context)
+  return function rootLinkFn (vm, el) {
+    // link context scope dirs
+    var context = vm._context
+    var contextDirs
+    if (context && contextLinkFn) {
+      contextDirs = linkAndCapture(function () {
+        contextLinkFn(context, el)
+      }, context)
+    }
+
+    // link self
+    var selfDirs = linkAndCapture(function () {
+      if (replacerLinkFn) replacerLinkFn(vm, el)
+    }, vm)
+
+    // return the unlink function that tearsdown context
+    // container directives.
+    return makeUnlinkFn(vm, selfDirs, context, contextDirs)
   }
-
-  // link self
-  var selfDirs = linkAndCapture(function () {
-    if (replacerLinkFn) replacerLinkFn(vm, el)
-  }, vm)
-
-  // return the unlink function that tearsdown context
-  // container directives.
-  return makeUnlinkFn(vm, selfDirs, context, contextDirs)
 }
 
 /**
@@ -1528,6 +2402,14 @@ function compileNode (node, options) {
  */
 
 function compileElement (el, options) {
+  // preprocess textareas.
+  // textarea treats its text content as the initial value.
+  // just bind it as a v-attr directive for value.
+  if (el.tagName === 'TEXTAREA') {
+    if (textParser.parse(el.value)) {
+      el.setAttribute('value', el.value)
+    }
+  }
   var linkFn
   var hasAttrs = el.hasAttributes()
   // check terminal directives (repeat & if)
@@ -1544,17 +2426,7 @@ function compileElement (el, options) {
   }
   // normal directives
   if (!linkFn && hasAttrs) {
-    linkFn = compileDirectives(el, options)
-  }
-  // if the element is a textarea, we need to interpolate
-  // its content on initial render.
-  if (el.tagName === 'TEXTAREA') {
-    var realLinkFn = linkFn
-    linkFn = function (vm, el) {
-      el.value = vm.$interpolate(el.value)
-      if (realLinkFn) realLinkFn(vm, el)
-    }
-    linkFn.terminal = true
+    linkFn = compileDirectives(el.attributes, options)
   }
   return linkFn
 }
@@ -1797,17 +2669,12 @@ function makeTerminalNodeLinkFn (el, dirName, value, options, def) {
 /**
  * Compile the directives on an element and return a linker.
  *
- * @param {Element|Object} elOrAttrs
- *        - could be an object of already-extracted
- *          container attributes.
+ * @param {Array|NamedNodeMap} attrs
  * @param {Object} options
  * @return {Function}
  */
 
-function compileDirectives (elOrAttrs, options) {
-  var attrs = _.isPlainObject(elOrAttrs)
-    ? mapToList(elOrAttrs)
-    : elOrAttrs.attributes
+function compileDirectives (attrs, options) {
   var i = attrs.length
   var dirs = []
   var attr, name, value, dir, dirName, dirDef
@@ -1840,24 +2707,6 @@ function compileDirectives (elOrAttrs, options) {
     dirs.sort(directiveComparator)
     return makeNodeLinkFn(dirs)
   }
-}
-
-/**
- * Convert a map (Object) of attributes to an Array.
- *
- * @param {Object} map
- * @return {Array}
- */
-
-function mapToList (map) {
-  var list = []
-  for (var key in map) {
-    list.push({
-      name: key,
-      value: map[key]
-    })
-  }
-  return list
 }
 
 /**
@@ -1950,13 +2799,13 @@ function directiveComparator (a, b) {
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"../directives/component":20,"../parsers/directive":52,"../parsers/template":55,"../parsers/text":56,"../util":64,"./compile-props":11,"_process":2}],13:[function(require,module,exports){
+},{"../config":22,"../directives/component":27,"../parsers/directive":59,"../parsers/template":62,"../parsers/text":63,"../util":71,"./compile-props":18,"_process":1}],20:[function(require,module,exports){
 var _ = require('../util')
 
 _.extend(exports, require('./compile'))
 _.extend(exports, require('./transclude'))
 
-},{"../util":64,"./compile":12,"./transclude":14}],14:[function(require,module,exports){
+},{"../util":71,"./compile":19,"./transclude":21}],21:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var config = require('../config')
@@ -1984,7 +2833,7 @@ exports.transclude = function (el, options) {
     options._containerAttrs = extractAttrs(el)
   }
   // for template tags, what we want is its content as
-  // a documentFragment (for block instances)
+  // a documentFragment (for fragment instances)
   if (_.isTemplate(el)) {
     el = templateParser.parse(el)
   }
@@ -1998,7 +2847,7 @@ exports.transclude = function (el, options) {
     }
   }
   if (el instanceof DocumentFragment) {
-    // anchors for block instance
+    // anchors for fragment instance
     // passing in `persist: true` to avoid them being
     // discarded by IE during template cloning
     _.prepend(_.createAnchor('v-start', true), el)
@@ -2031,17 +2880,21 @@ function transcludeTemplate (el, options) {
           'should probably use `replace: false` here.'
         )
       }
+      // there are many cases where the instance must
+      // become a fragment instance: basically anything that
+      // can create more than 1 root nodes.
       if (
         // multi-children template
         frag.childNodes.length > 1 ||
         // non-element template
         replacer.nodeType !== 1 ||
-        // when root node is <component>, is an element
-        // directive, or has v-repeat, the instance could
-        // end up having multiple top-level nodes, thus
-        // becoming a block instance.
+        // single nested component
         tag === 'component' ||
+        _.resolveAsset(options, 'components', tag) ||
+        replacer.hasAttribute(config.prefix + 'component') ||
+        // element directive
         _.resolveAsset(options, 'elementDirectives', tag) ||
+        // repeat block
         replacer.hasAttribute(config.prefix + 'repeat')
       ) {
         return frag
@@ -2062,22 +2915,16 @@ function transcludeTemplate (el, options) {
 }
 
 /**
- * Helper to extract a component container's attribute names
- * into a map.
+ * Helper to extract a component container's attributes
+ * into a plain object array.
  *
  * @param {Element} el
- * @return {Object}
+ * @return {Array}
  */
 
 function extractAttrs (el) {
   if (el.nodeType === 1 && el.hasAttributes()) {
-    var attrs = el.attributes
-    var res = {}
-    var i = attrs.length
-    while (i--) {
-      res[attrs[i].name] = attrs[i].value
-    }
-    return res
+    return _.toArray(el.attributes)
   }
 }
 
@@ -2099,13 +2946,14 @@ function mergeAttrs (from, to) {
     if (!to.hasAttribute(name)) {
       to.setAttribute(name, value)
     } else if (name === 'class') {
-      to.className = to.className + ' ' + value
+      value = to.getAttribute(name) + ' ' + value
+      to.setAttribute(name, value)
     }
   }
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"../parsers/template":55,"../util":64,"_process":2}],15:[function(require,module,exports){
+},{"../config":22,"../parsers/template":62,"../util":71,"_process":1}],22:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -2124,6 +2972,13 @@ module.exports = {
    */
 
   debug: false,
+
+  /**
+   * Strict mode.
+   * Disables asset lookup in the view parent chain.
+   */
+
+  strict: false,
 
   /**
    * Whether to suppress warnings.
@@ -2224,7 +3079,8 @@ Object.defineProperty(module.exports, 'delimiters', {
   }
 })
 
-},{}],16:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+(function (process){
 var _ = require('./util')
 var config = require('./config')
 var Watcher = require('./watcher')
@@ -2264,11 +3120,10 @@ function Directive (name, el, vm, descriptor, def, host) {
   this._host = host
   this._locked = false
   this._bound = false
+  this._listeners = null
   // init
   this._bind(def)
 }
-
-var p = Directive.prototype
 
 /**
  * Initialize the directive, mixin definition properties,
@@ -2278,7 +3133,7 @@ var p = Directive.prototype
  * @param {Object} def
  */
 
-p._bind = function (def) {
+Directive.prototype._bind = function (def) {
   if (
     (this.name !== 'cloak' || this.vm._isCompiled) &&
     this.el && this.el.removeAttribute
@@ -2339,7 +3194,7 @@ p._bind = function (def) {
  * e.g. v-component="{{currentView}}"
  */
 
-p._checkDynamicLiteral = function () {
+Directive.prototype._checkDynamicLiteral = function () {
   var expression = this.expression
   if (expression && this.isLiteral) {
     var tokens = textParser.parse(expression)
@@ -2363,7 +3218,7 @@ p._checkDynamicLiteral = function () {
  * @return {Boolean}
  */
 
-p._checkStatement = function () {
+Directive.prototype._checkStatement = function () {
   var expression = this.expression
   if (
     expression && this.acceptStatement &&
@@ -2389,29 +3244,13 @@ p._checkStatement = function () {
  * @return {String}
  */
 
-p._checkParam = function (name) {
+Directive.prototype._checkParam = function (name) {
   var param = this.el.getAttribute(name)
   if (param !== null) {
     this.el.removeAttribute(name)
+    param = this.vm.$interpolate(param)
   }
   return param
-}
-
-/**
- * Teardown the watcher and call unbind.
- */
-
-p._teardown = function () {
-  if (this._bound) {
-    this._bound = false
-    if (this.unbind) {
-      this.unbind()
-    }
-    if (this._watcher) {
-      this._watcher.teardown()
-    }
-    this.vm = this.el = this._watcher = null
-  }
 }
 
 /**
@@ -2423,11 +3262,17 @@ p._teardown = function () {
  * @public
  */
 
-p.set = function (value) {
+Directive.prototype.set = function (value) {
+  /* istanbul ignore else */
   if (this.twoWay) {
     this._withLock(function () {
       this._watcher.set(value)
     })
+  } else if (process.env.NODE_ENV !== 'production') {
+    _.warn(
+      'Directive.set() can only be used inside twoWay' +
+      'directives.'
+    )
   }
 }
 
@@ -2438,7 +3283,7 @@ p.set = function (value) {
  * @param {Function} fn
  */
 
-p._withLock = function (fn) {
+Directive.prototype._withLock = function (fn) {
   var self = this
   self._locked = true
   fn.call(self)
@@ -2447,12 +3292,57 @@ p._withLock = function (fn) {
   })
 }
 
+/**
+ * Convenience method that attaches a DOM event listener
+ * to the directive element and autometically tears it down
+ * during unbind.
+ *
+ * @param {String} event
+ * @param {Function} handler
+ */
+
+Directive.prototype.on = function (event, handler) {
+  _.on(this.el, event, handler)
+  ;(this._listeners || (this._listeners = []))
+    .push([event, handler])
+}
+
+/**
+ * Teardown the watcher and call unbind.
+ */
+
+Directive.prototype._teardown = function () {
+  if (this._bound) {
+    this._bound = false
+    if (this.unbind) {
+      this.unbind()
+    }
+    if (this._watcher) {
+      this._watcher.teardown()
+    }
+    var listeners = this._listeners
+    if (listeners) {
+      for (var i = 0; i < listeners.length; i++) {
+        _.off(this.el, listeners[i][0], listeners[i][1])
+      }
+    }
+    this.vm = this.el =
+    this._watcher = this._listeners = null
+  }
+}
+
 module.exports = Directive
 
-},{"./config":15,"./parsers/expression":53,"./parsers/text":56,"./util":64,"./watcher":68}],17:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./config":22,"./parsers/expression":60,"./parsers/text":63,"./util":71,"./watcher":75,"_process":1}],24:[function(require,module,exports){
 // xlink
 var xlinkNS = 'http://www.w3.org/1999/xlink'
 var xlinkRE = /^xlink:/
+var inputProps = {
+  value: 1,
+  checked: 1,
+  selected: 1
+}
 
 module.exports = {
 
@@ -2487,7 +3377,13 @@ module.exports = {
   },
 
   setAttr: function (attr, value) {
-    if (value || value === 0) {
+    if (inputProps[attr] && attr in this.el) {
+      if (!this.valueRemoved) {
+        this.el.removeAttribute(attr)
+        this.valueRemoved = true
+      }
+      this.el[attr] = value
+    } else if (value != null && value !== false) {
       if (xlinkRE.test(attr)) {
         this.el.setAttributeNS(xlinkNS, attr, value)
       } else {
@@ -2496,14 +3392,10 @@ module.exports = {
     } else {
       this.el.removeAttribute(attr)
     }
-    if (attr in this.el) {
-      this.el[attr] = value
-    }
   }
-
 }
 
-},{}],18:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var _ = require('../util')
 var addClass = _.addClass
 var removeClass = _.removeClass
@@ -2575,7 +3467,7 @@ function stringToObject (value) {
   return res
 }
 
-},{"../util":64}],19:[function(require,module,exports){
+},{"../util":71}],26:[function(require,module,exports){
 var config = require('../config')
 
 module.exports = {
@@ -2587,9 +3479,10 @@ module.exports = {
   }
 }
 
-},{"../config":15}],20:[function(require,module,exports){
+},{"../config":22}],27:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
+var config = require('../config')
 var templateParser = require('../parsers/template')
 
 module.exports = {
@@ -2618,9 +3511,9 @@ module.exports = {
       // cache object, with its constructor id as the key.
       this.keepAlive = this._checkParam('keep-alive') != null
       // wait for event before insertion
-      this.readyEvent = this._checkParam('wait-for')
+      this.waitForEvent = this._checkParam('wait-for')
       // check ref
-      this.refID = _.attr(this.el, 'ref')
+      this.refID = this._checkParam(config.prefix + 'ref')
       if (this.keepAlive) {
         this.cache = {}
       }
@@ -2630,22 +3523,22 @@ module.exports = {
         this.template = _.extractContent(this.el, true)
       }
       // component resolution related state
-      this._pendingCb =
-      this.ctorId =
-      this.Ctor = null
+      this.pendingComponentCb =
+      this.Component = null
+      // transition related state
+      this.pendingRemovals = 0
+      this.pendingRemovalCb = null
       // if static, build right now.
       if (!this._isDynamicLiteral) {
-        this.resolveCtor(this.expression, _.bind(this.initStatic, this))
+        this.resolveComponent(this.expression, _.bind(this.initStatic, this))
       } else {
         // check dynamic component params
         this.transMode = this._checkParam('transition-mode')
       }
     } else {
       process.env.NODE_ENV !== 'production' && _.warn(
-        'Do not create a component that only contains ' +
-        'a single other component - they will be mounted to ' +
-        'the same element and cause conflict. Wrap it with ' +
-        'an outer element.'
+        'cannot mount component "' + this.expression + '" ' +
+        'on already mounted element: ' + this.el
       )
     }
   },
@@ -2655,15 +3548,23 @@ module.exports = {
    */
 
   initStatic: function () {
-    var child = this.build()
+    // wait-for
     var anchor = this.anchor
+    var options
+    var waitFor = this.waitForEvent
+    if (waitFor) {
+      options = {
+        created: function () {
+          this.$once(waitFor, function () {
+            this.$before(anchor)
+          })
+        }
+      }
+    }
+    var child = this.build(options)
     this.setCurrent(child)
-    if (!this.readyEvent) {
+    if (!this.waitForEvent) {
       child.$before(anchor)
-    } else {
-      child.$once(this.readyEvent, function () {
-        child.$before(anchor)
-      })
     }
   },
 
@@ -2682,32 +3583,42 @@ module.exports = {
    * specified transition mode. Accepts a few additional
    * arguments specifically for vue-router.
    *
+   * The callback is called when the full transition is
+   * finished.
+   *
    * @param {String} value
-   * @param {Object} data
-   * @param {Function} afterBuild
-   * @param {Function} afterTransition
+   * @param {Function} [cb]
    */
 
-  setComponent: function (value, data, afterBuild, afterTransition) {
+  setComponent: function (value, cb) {
     this.invalidatePending()
     if (!value) {
       // just remove current
       this.unbuild(true)
-      this.remove(this.childVM, afterTransition)
+      this.remove(this.childVM, cb)
       this.unsetCurrent()
     } else {
-      this.resolveCtor(value, _.bind(function () {
+      this.resolveComponent(value, _.bind(function () {
         this.unbuild(true)
-        var newComponent = this.build(data)
-        /* istanbul ignore if */
-        if (afterBuild) afterBuild(newComponent)
+        var options
         var self = this
-        if (this.readyEvent) {
-          newComponent.$once(this.readyEvent, function () {
-            self.transition(newComponent, afterTransition)
-          })
+        var waitFor = this.waitForEvent
+        if (waitFor) {
+          options = {
+            created: function () {
+              this.$once(waitFor, function () {
+                self.waitingFor = null
+                self.transition(this, cb)
+              })
+            }
+          }
+        }
+        var cached = this.getCached()
+        var newComponent = this.build(options)
+        if (!waitFor || cached) {
+          this.transition(newComponent, cb)
         } else {
-          this.transition(newComponent, afterTransition)
+          this.waitingFor = newComponent
         }
       }, this))
     }
@@ -2718,14 +3629,13 @@ module.exports = {
    * the child vm.
    */
 
-  resolveCtor: function (id, cb) {
+  resolveComponent: function (id, cb) {
     var self = this
-    this._pendingCb = _.cancellable(function (ctor) {
-      self.ctorId = id
-      self.Ctor = ctor
+    this.pendingComponentCb = _.cancellable(function (Component) {
+      self.Component = Component
       cb()
     })
-    this.vm._resolveComponent(id, this._pendingCb)
+    this.vm._resolveComponent(id, this.pendingComponentCb)
   },
 
   /**
@@ -2735,9 +3645,9 @@ module.exports = {
    */
 
   invalidatePending: function () {
-    if (this._pendingCb) {
-      this._pendingCb.cancel()
-      this._pendingCb = null
+    if (this.pendingComponentCb) {
+      this.pendingComponentCb.cancel()
+      this.pendingComponentCb = null
     }
   },
 
@@ -2746,23 +3656,19 @@ module.exports = {
    * If keep alive and has cached instance, insert that
    * instance; otherwise build a new one and cache it.
    *
-   * @param {Object} [data]
+   * @param {Object} [extraOptions]
    * @return {Vue} - the created instance
    */
 
-  build: function (data) {
-    if (this.keepAlive) {
-      var cached = this.cache[this.ctorId]
-      if (cached) {
-        return cached
-      }
+  build: function (extraOptions) {
+    var cached = this.getCached()
+    if (cached) {
+      return cached
     }
-    if (this.Ctor) {
-      var parent = this._host || this.vm
-      var el = templateParser.clone(this.el)
-      var child = parent.$addChild({
-        el: el,
-        data: data,
+    if (this.Component) {
+      // default options
+      var options = {
+        el: templateParser.clone(this.el),
         template: this.template,
         // if no inline-template, then the compiled
         // linker can be cached for better performance.
@@ -2770,12 +3676,28 @@ module.exports = {
         _asComponent: true,
         _isRouterView: this._isRouterView,
         _context: this.vm
-      }, this.Ctor)
+      }
+      // extra options
+      if (extraOptions) {
+        _.extend(options, extraOptions)
+      }
+      var parent = this._host || this.vm
+      var child = parent.$addChild(options, this.Component)
       if (this.keepAlive) {
-        this.cache[this.ctorId] = child
+        this.cache[this.Component.cid] = child
       }
       return child
     }
+  },
+
+  /**
+   * Try to get a cached instance of the current component.
+   *
+   * @return {Vue|undefined}
+   */
+
+  getCached: function () {
+    return this.keepAlive && this.cache[this.Component.cid]
   },
 
   /**
@@ -2786,6 +3708,10 @@ module.exports = {
    */
 
   unbuild: function (defer) {
+    if (this.waitingFor) {
+      this.waitingFor.$destroy()
+      this.waitingFor = null
+    }
     var child = this.childVM
     if (!child || this.keepAlive) {
       return
@@ -2806,9 +3732,20 @@ module.exports = {
   remove: function (child, cb) {
     var keepAlive = this.keepAlive
     if (child) {
+      // we may have a component switch when a previous
+      // component is still being transitioned out.
+      // we want to trigger only one lastest insertion cb
+      // when the existing transition finishes. (#1119)
+      this.pendingRemovals++
+      this.pendingRemovalCb = cb
+      var self = this
       child.$remove(function () {
+        self.pendingRemovals--
         if (!keepAlive) child._cleanup()
-        if (cb) cb()
+        if (!self.pendingRemovals && self.pendingRemovalCb) {
+          self.pendingRemovalCb()
+          self.pendingRemovalCb = null
+        }
       })
     } else if (cb) {
       cb()
@@ -2826,7 +3763,6 @@ module.exports = {
   transition: function (target, cb) {
     var self = this
     var current = this.childVM
-    this.unsetCurrent()
     this.setCurrent(target)
     switch (self.transMode) {
       case 'in-out':
@@ -2836,9 +3772,7 @@ module.exports = {
         break
       case 'out-in':
         self.remove(current, function () {
-          if (!target._isDestroyed) {
-            target.$before(self.anchor, cb)
-          }
+          target.$before(self.anchor, cb)
         })
         break
       default:
@@ -2852,6 +3786,7 @@ module.exports = {
    */
 
   setCurrent: function (child) {
+    this.unsetCurrent()
     this.childVM = child
     var refID = child._refID || this.refID
     if (refID) {
@@ -2892,7 +3827,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../parsers/template":55,"../util":64,"_process":2}],21:[function(require,module,exports){
+},{"../config":22,"../parsers/template":62,"../util":71,"_process":1}],28:[function(require,module,exports){
 module.exports = {
 
   isLiteral: true,
@@ -2906,7 +3841,7 @@ module.exports = {
   }
 }
 
-},{}],22:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var _ = require('../util')
 var templateParser = require('../parsers/template')
 
@@ -2948,12 +3883,14 @@ module.exports = {
   }
 }
 
-},{"../parsers/template":55,"../util":64}],23:[function(require,module,exports){
+},{"../parsers/template":62,"../util":71}],30:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
 var templateParser = require('../parsers/template')
 var transition = require('../transition')
+var Cache = require('../cache')
+var cache = new Cache(1000)
 
 module.exports = {
 
@@ -2971,11 +3908,16 @@ module.exports = {
         this.template.appendChild(templateParser.clone(el))
       }
       // compile the nested partial
-      this.linker = compiler.compile(
-        this.template,
-        this.vm.$options,
-        true
-      )
+      var cacheId = (this.vm.constructor.cid || '') + el.outerHTML
+      this.linker = cache.get(cacheId)
+      if (!this.linker) {
+        this.linker = compiler.compile(
+          this.template,
+          this.vm.$options,
+          true // partial
+        )
+        cache.put(cacheId, this.linker)
+      }
     } else {
       process.env.NODE_ENV !== 'production' && _.warn(
         'v-if="' + this.expression + '" cannot be ' +
@@ -3003,7 +3945,7 @@ module.exports = {
 
   link: function (frag, linker) {
     var vm = this.vm
-    this.unlink = linker(vm, frag)
+    this.unlink = linker(vm, frag, this._host /* important */)
     transition.blockAppend(frag, this.end, vm)
     // call attached for all the child components created
     // during the compilation
@@ -3027,7 +3969,7 @@ module.exports = {
   },
 
   getContainedComponents: function () {
-    var vm = this.vm
+    var vm = this._host || this.vm
     var start = this.start.nextSibling
     var end = this.end
 
@@ -3070,7 +4012,7 @@ function callDetach (child) {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":13,"../parsers/template":55,"../transition":57,"../util":64,"_process":2}],24:[function(require,module,exports){
+},{"../cache":17,"../compiler":20,"../parsers/template":62,"../transition":64,"../util":71,"_process":1}],31:[function(require,module,exports){
 // manipulation directives
 exports.text = require('./text')
 exports.html = require('./html')
@@ -3096,7 +4038,7 @@ exports['if'] = require('./if')
 exports._component = require('./component')
 exports._prop = require('./prop')
 
-},{"./attr":17,"./class":18,"./cloak":19,"./component":20,"./el":21,"./html":22,"./if":23,"./model":26,"./on":30,"./prop":31,"./ref":32,"./repeat":33,"./show":34,"./style":35,"./text":36,"./transition":37}],25:[function(require,module,exports){
+},{"./attr":24,"./class":25,"./cloak":26,"./component":27,"./el":28,"./html":29,"./if":30,"./model":33,"./on":37,"./prop":38,"./ref":39,"./repeat":40,"./show":41,"./style":42,"./text":43,"./transition":44}],32:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -3104,25 +4046,43 @@ module.exports = {
   bind: function () {
     var self = this
     var el = this.el
-    this.listener = function () {
-      self.set(el.checked)
+    var trueExp = this._checkParam('true-exp')
+    var falseExp = this._checkParam('false-exp')
+
+    this._matchValue = function (value) {
+      if (trueExp !== null) {
+        return _.looseEqual(value, self.vm.$eval(trueExp))
+      } else {
+        return !!value
+      }
     }
-    _.on(el, 'change', this.listener)
+
+    function getValue () {
+      var val = el.checked
+      if (val && trueExp !== null) {
+        val = self.vm.$eval(trueExp)
+      }
+      if (!val && falseExp !== null) {
+        val = self.vm.$eval(falseExp)
+      }
+      return val
+    }
+
+    this.on('change', function () {
+      self.set(getValue())
+    })
+
     if (el.checked) {
-      this._initValue = el.checked
+      this._initValue = getValue()
     }
   },
 
   update: function (value) {
-    this.el.checked = !!value
-  },
-
-  unbind: function () {
-    _.off(this.el, 'change', this.listener)
+    this.el.checked = this._matchValue(value)
   }
 }
 
-},{"../../util":64}],26:[function(require,module,exports){
+},{"../../util":71}],33:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 
@@ -3176,9 +4136,10 @@ module.exports = {
       )
       return
     }
+    el.__v_model = this
     handler.bind.call(this)
     this.update = handler.update
-    this.unbind = handler.unbind
+    this._unbind = handler.unbind
   },
 
   /**
@@ -3198,11 +4159,16 @@ module.exports = {
         this.hasWrite = true
       }
     }
+  },
+
+  unbind: function () {
+    this.el.__v_model = null
+    this._unbind && this._unbind()
   }
 }
 
 }).call(this,require('_process'))
-},{"../../util":64,"./checkbox":25,"./radio":27,"./select":28,"./text":29,"_process":2}],27:[function(require,module,exports){
+},{"../../util":71,"./checkbox":32,"./radio":34,"./select":35,"./text":36,"_process":1}],34:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -3210,27 +4176,34 @@ module.exports = {
   bind: function () {
     var self = this
     var el = this.el
-    this.listener = function () {
-      self.set(el.value)
+    var number = this._checkParam('number') != null
+    var expression = this._checkParam('exp')
+
+    this.getValue = function () {
+      var val = el.value
+      if (number) {
+        val = _.toNumber(val)
+      } else if (expression !== null) {
+        val = self.vm.$eval(expression)
+      }
+      return val
     }
-    _.on(el, 'change', this.listener)
+
+    this.on('change', function () {
+      self.set(self.getValue())
+    })
+
     if (el.checked) {
-      this._initValue = el.value
+      this._initValue = this.getValue()
     }
   },
 
   update: function (value) {
-    /* eslint-disable eqeqeq */
-    this.el.checked = value == this.el.value
-    /* eslint-enable eqeqeq */
-  },
-
-  unbind: function () {
-    _.off(this.el, 'change', this.listener)
+    this.el.checked = _.looseEqual(value, this.getValue())
   }
 }
 
-},{"../../util":64}],28:[function(require,module,exports){
+},{"../../util":71}],35:[function(require,module,exports){
 (function (process){
 var _ = require('../../util')
 var Watcher = require('../../watcher')
@@ -3241,12 +4214,14 @@ module.exports = {
   bind: function () {
     var self = this
     var el = this.el
-    // update DOM using latest value.
+
+    // method to force update DOM using latest value.
     this.forceUpdate = function () {
       if (self._watcher) {
         self.update(self._watcher.get())
       }
     }
+
     // check options param
     var optionsParam = this._checkParam('options')
     if (optionsParam) {
@@ -3254,19 +4229,21 @@ module.exports = {
     }
     this.number = this._checkParam('number') != null
     this.multiple = el.hasAttribute('multiple')
-    this.listener = function () {
-      var value = self.multiple
-        ? getMultiValue(el)
-        : el.value
+
+    // attach listener
+    this.on('change', function () {
+      var value = getValue(el, self.multiple)
       value = self.number
         ? _.isArray(value)
           ? value.map(_.toNumber)
           : _.toNumber(value)
         : value
       self.set(value)
-    }
-    _.on(el, 'change', this.listener)
+    })
+
+    // check initial value (inline selected attribute)
     checkInitialValue.call(this)
+
     // All major browsers except Firefox resets
     // selectedIndex with value -1 to 0 when the element
     // is appended to a new parent, therefore we have to
@@ -3277,28 +4254,35 @@ module.exports = {
   update: function (value) {
     var el = this.el
     el.selectedIndex = -1
+    if (value == null) {
+      if (this.defaultOption) {
+        this.defaultOption.selected = true
+      }
+      return
+    }
     var multi = this.multiple && _.isArray(value)
     var options = el.options
     var i = options.length
-    var option
+    var op, val
     while (i--) {
-      option = options[i]
+      op = options[i]
+      val = op.hasOwnProperty('_value')
+        ? op._value
+        : op.value
       /* eslint-disable eqeqeq */
-      option.selected = multi
-        ? indexOf(value, option.value) > -1
-        : value == option.value
+      op.selected = multi
+        ? indexOf(value, val) > -1
+        : _.looseEqual(value, val)
       /* eslint-enable eqeqeq */
     }
   },
 
   unbind: function () {
-    _.off(this.el, 'change', this.listener)
     this.vm.$off('hook:attached', this.forceUpdate)
     if (this.optionWatcher) {
       this.optionWatcher.teardown()
     }
   }
-
 }
 
 /**
@@ -3309,11 +4293,28 @@ module.exports = {
 
 function initOptions (expression) {
   var self = this
+  var el = self.el
+  var defaultOption = self.defaultOption = self.el.options[0]
   var descriptor = dirParser.parse(expression)[0]
   function optionUpdateWatcher (value) {
     if (_.isArray(value)) {
-      self.el.innerHTML = ''
-      buildOptions(self.el, value)
+      // clear old options.
+      // cannot reset innerHTML here because IE family get
+      // confused during compilation.
+      var i = el.options.length
+      while (i--) {
+        var option = el.options[i]
+        if (option !== defaultOption) {
+          var parentNode = option.parentNode
+          if (parentNode === el) {
+            parentNode.removeChild(option)
+          } else {
+            el.removeChild(parentNode)
+            i = el.options.length
+          }
+        }
+      }
+      buildOptions(el, value)
       self.forceUpdate()
     } else {
       process.env.NODE_ENV !== 'production' && _.warn(
@@ -3352,10 +4353,13 @@ function buildOptions (parent, options) {
       if (typeof op === 'string') {
         el.text = el.value = op
       } else {
-        if (op.value != null) {
+        if (op.value != null && !_.isObject(op.value)) {
           el.value = op.value
         }
-        el.text = op.text || op.value || ''
+        // object values gets serialized when set as value,
+        // so we store the raw value as a different property
+        el._value = op.value
+        el.text = op.text || ''
         if (op.disabled) {
           el.disabled = true
         }
@@ -3394,29 +4398,35 @@ function checkInitialValue () {
 }
 
 /**
- * Helper to extract a value array for select[multiple]
+ * Get select value
  *
  * @param {SelectElement} el
- * @return {Array}
+ * @param {Boolean} multi
+ * @return {Array|*}
  */
 
-function getMultiValue (el) {
-  return Array.prototype.filter
-    .call(el.options, filterSelected)
-    .map(getOptionValue)
-}
-
-function filterSelected (op) {
-  return op.selected
-}
-
-function getOptionValue (op) {
-  return op.value || op.text
+function getValue (el, multi) {
+  var res = multi ? [] : null
+  var op, val
+  for (var i = 0, l = el.options.length; i < l; i++) {
+    op = el.options[i]
+    if (op.selected) {
+      val = op.hasOwnProperty('_value')
+        ? op._value
+        : op.value
+      if (multi) {
+        res.push(val)
+      } else {
+        return val
+      }
+    }
+  }
+  return res
 }
 
 /**
  * Native Array.indexOf uses strict equal, but in this
- * case we need to match string/numbers with soft equal.
+ * case we need to match string/numbers with custom equal.
  *
  * @param {Array} arr
  * @param {*} val
@@ -3425,15 +4435,15 @@ function getOptionValue (op) {
 function indexOf (arr, val) {
   var i = arr.length
   while (i--) {
-    /* eslint-disable eqeqeq */
-    if (arr[i] == val) return i
-    /* eslint-enable eqeqeq */
+    if (_.looseEqual(arr[i], val)) {
+      return i
+    }
   }
   return -1
 }
 
 }).call(this,require('_process'))
-},{"../../parsers/directive":52,"../../util":64,"../../watcher":68,"_process":2}],29:[function(require,module,exports){
+},{"../../parsers/directive":59,"../../util":71,"../../watcher":75,"_process":1}],36:[function(require,module,exports){
 var _ = require('../../util')
 
 module.exports = {
@@ -3441,6 +4451,7 @@ module.exports = {
   bind: function () {
     var self = this
     var el = this.el
+    var isRange = el.type === 'range'
 
     // check params
     // - lazy: update model on "change" instead of "input"
@@ -3458,78 +4469,51 @@ module.exports = {
     // Chinese, but instead triggers them for spelling
     // suggestions... (see Discussion/#162)
     var composing = false
-    if (!_.isAndroid) {
-      this.onComposeStart = function () {
+    if (!_.isAndroid && !isRange) {
+      this.on('compositionstart', function () {
         composing = true
-      }
-      this.onComposeEnd = function () {
+      })
+      this.on('compositionend', function () {
         composing = false
         // in IE11 the "compositionend" event fires AFTER
         // the "input" event, so the input handler is blocked
         // at the end... have to call it here.
         self.listener()
-      }
-      _.on(el, 'compositionstart', this.onComposeStart)
-      _.on(el, 'compositionend', this.onComposeEnd)
+      })
     }
 
-    function syncToModel () {
-      var val = number
+    // prevent messing with the input when user is typing,
+    // and force update on blur.
+    this.focused = false
+    if (!isRange) {
+      this.on('focus', function () {
+        self.focused = true
+      })
+      this.on('blur', function () {
+        self.focused = false
+        self.listener()
+      })
+    }
+
+    // Now attach the main listener
+    this.listener = function () {
+      if (composing) return
+      var val = number || isRange
         ? _.toNumber(el.value)
         : el.value
       self.set(val)
-    }
-
-    // if the directive has filters, we need to
-    // record cursor position and restore it after updating
-    // the input with the filtered value.
-    // also force update for type="range" inputs to enable
-    // "lock in range" (see #506)
-    if (this.hasRead || el.type === 'range') {
-      this.listener = function () {
-        if (composing) return
-        var charsOffset
-        // some HTML5 input types throw error here
-        try {
-          // record how many chars from the end of input
-          // the cursor was at
-          charsOffset = el.value.length - el.selectionStart
-        } catch (e) {}
-        // Fix IE10/11 infinite update cycle
-        // https://github.com/yyx990803/vue/issues/592
-        /* istanbul ignore if */
-        if (charsOffset < 0) {
-          return
+      // force update on next tick to avoid lock & same value
+      // also only update when user is not typing
+      _.nextTick(function () {
+        if (self._bound && !self.focused) {
+          self.update(self._watcher.value)
         }
-        syncToModel()
-        _.nextTick(function () {
-          // force a value update, because in
-          // certain cases the write filters output the
-          // same result for different input values, and
-          // the Observer set events won't be triggered.
-          var newVal = self._watcher.value
-          self.update(newVal)
-          if (charsOffset != null) {
-            var cursorPos =
-              _.toString(newVal).length - charsOffset
-            el.setSelectionRange(cursorPos, cursorPos)
-          }
-        })
-      }
-    } else {
-      this.listener = function () {
-        if (composing) return
-        syncToModel()
-      }
+      })
     }
-
     if (debounce) {
       this.listener = _.debounce(this.listener, debounce)
     }
 
-    // Now attach the main listener
-
-    this.event = lazy ? 'change' : 'input'
     // Support jQuery events, since jQuery.trigger() doesn't
     // trigger native events in some cases and some plugins
     // rely on $.trigger()
@@ -3542,23 +4526,27 @@ module.exports = {
     // jQuery variable in tests.
     this.hasjQuery = typeof jQuery === 'function'
     if (this.hasjQuery) {
-      jQuery(el).on(this.event, this.listener)
+      jQuery(el).on('change', this.listener)
+      if (!lazy) {
+        jQuery(el).on('input', this.listener)
+      }
     } else {
-      _.on(el, this.event, this.listener)
+      this.on('change', this.listener)
+      if (!lazy) {
+        this.on('input', this.listener)
+      }
     }
 
     // IE9 doesn't fire input event on backspace/del/cut
     if (!lazy && _.isIE9) {
-      this.onCut = function () {
+      this.on('cut', function () {
         _.nextTick(self.listener)
-      }
-      this.onDel = function (e) {
+      })
+      this.on('keyup', function (e) {
         if (e.keyCode === 46 || e.keyCode === 8) {
           self.listener()
         }
-      }
-      _.on(el, 'cut', this.onCut)
-      _.on(el, 'keyup', this.onDel)
+      })
     }
 
     // set initial value if present
@@ -3579,22 +4567,13 @@ module.exports = {
   unbind: function () {
     var el = this.el
     if (this.hasjQuery) {
-      jQuery(el).off(this.event, this.listener)
-    } else {
-      _.off(el, this.event, this.listener)
-    }
-    if (this.onComposeStart) {
-      _.off(el, 'compositionstart', this.onComposeStart)
-      _.off(el, 'compositionend', this.onComposeEnd)
-    }
-    if (this.onCut) {
-      _.off(el, 'cut', this.onCut)
-      _.off(el, 'keyup', this.onDel)
+      jQuery(el).off('change', this.listener)
+      jQuery(el).off('input', this.listener)
     }
   }
 }
 
-},{"../../util":64}],30:[function(require,module,exports){
+},{"../../util":71}],37:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 
@@ -3613,7 +4592,7 @@ module.exports = {
       this.iframeBind = function () {
         _.on(self.el.contentWindow, self.arg, self.handler)
       }
-      _.on(this.el, 'load', this.iframeBind)
+      this.on('load', this.iframeBind)
     }
   },
 
@@ -3653,12 +4632,11 @@ module.exports = {
 
   unbind: function () {
     this.reset()
-    _.off(this.el, 'load', this.iframeBind)
   }
 }
 
 }).call(this,require('_process'))
-},{"../util":64,"_process":2}],31:[function(require,module,exports){
+},{"../util":71,"_process":1}],38:[function(require,module,exports){
 // NOTE: the prop internal directive is compiled and linked
 // during _initScope(), before the created hook is called.
 // The purpose is to make the initial prop values available
@@ -3686,7 +4664,7 @@ module.exports = {
         if (_.assertProp(prop, val)) {
           child[childKey] = val
         }
-      }
+      }, { sync: true }
     )
 
     // set the child initial value.
@@ -3708,7 +4686,7 @@ module.exports = {
           childKey,
           function (val) {
             parent.$set(parentKey, val)
-          }
+          }, { sync: true }
         )
       })
     }
@@ -3722,7 +4700,7 @@ module.exports = {
   }
 }
 
-},{"../config":15,"../util":64,"../watcher":68}],32:[function(require,module,exports){
+},{"../config":22,"../util":71,"../watcher":75}],39:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 
@@ -3748,9 +4726,10 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../util":64,"_process":2}],33:[function(require,module,exports){
+},{"../util":71,"_process":1}],40:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
+var config = require('../config')
 var isObject = _.isObject
 var isPlainObject = _.isPlainObject
 var textParser = require('../parsers/text')
@@ -3772,6 +4751,21 @@ module.exports = {
    */
 
   bind: function () {
+
+    // some helpful tips...
+    /* istanbul ignore if */
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      this.el.tagName === 'OPTION' &&
+      this.el.parentNode && this.el.parentNode.__v_model
+    ) {
+      _.warn(
+        'Don\'t use v-repeat for v-model options; ' +
+        'use the `options` param instead: ' +
+        'http://vuejs.org/guide/forms.html#Dynamic_Select_Options'
+      )
+    }
+
     // support for item in array syntax
     var inMatch = this.expression.match(/(.*) in (.*)/)
     if (inMatch) {
@@ -3780,41 +4774,36 @@ module.exports = {
     }
     // uid as a cache identifier
     this.id = '__v_repeat_' + (++uid)
+
     // setup anchor nodes
     this.start = _.createAnchor('v-repeat-start')
     this.end = _.createAnchor('v-repeat-end')
     _.replace(this.el, this.end)
     _.before(this.start, this.end)
+
     // check if this is a block repeat
     this.template = _.isTemplate(this.el)
       ? templateParser.parse(this.el, true)
       : this.el
-    // check other directives that need to be handled
-    // at v-repeat level
-    this.checkIf()
-    this.checkRef()
-    this.checkComponent()
+
     // check for trackby param
-    this.idKey =
-      this._checkParam('track-by') ||
-      this._checkParam('trackby') // 0.11.0 compat
+    this.idKey = this._checkParam('track-by')
     // check for transition stagger
     var stagger = +this._checkParam('stagger')
     this.enterStagger = +this._checkParam('enter-stagger') || stagger
     this.leaveStagger = +this._checkParam('leave-stagger') || stagger
+
+    // check for v-ref/v-el
+    this.refID = this._checkParam(config.prefix + 'ref')
+    this.elID = this._checkParam(config.prefix + 'el')
+
+    // check other directives that need to be handled
+    // at v-repeat level
+    this.checkIf()
+    this.checkComponent()
+
+    // create cache object
     this.cache = Object.create(null)
-    // some helpful tips...
-    /* istanbul ignore if */
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      this.el.tagName === 'OPTION'
-    ) {
-      _.warn(
-        'Don\'t use v-repeat for v-model options; ' +
-        'use the `options` param instead: ' +
-        'http://vuejs.org/guide/forms.html#Dynamic_Select_Options'
-      )
-    }
   },
 
   /**
@@ -3831,21 +4820,6 @@ module.exports = {
   },
 
   /**
-   * Check if v-ref/ v-el is also present.
-   */
-
-  checkRef: function () {
-    var refID = _.attr(this.el, 'ref')
-    this.refID = refID
-      ? this.vm.$interpolate(refID)
-      : null
-    var elId = _.attr(this.el, 'el')
-    this.elId = elId
-      ? this.vm.$interpolate(elId)
-      : null
-  },
-
-  /**
    * Check the component constructor to use for repeated
    * instances. If static we resolve it now, otherwise it
    * needs to be resolved at build time with actual data.
@@ -3857,9 +4831,9 @@ module.exports = {
     var id = _.checkComponent(this.el, options)
     if (!id) {
       // default constructor
-      this.Ctor = _.Vue
+      this.Component = _.Vue
       // inline repeats should inherit
-      this.inherit = true
+      this.inline = true
       // important: transclude with no options, just
       // to ensure block start and block end
       this.template = compiler.transclude(this.template)
@@ -3867,7 +4841,7 @@ module.exports = {
       copy._asComponent = false
       this._linkFn = compiler.compile(this.template, copy)
     } else {
-      this.Ctor = null
+      this.Component = null
       this.asComponent = true
       // check inline-template
       if (this._checkParam('inline-template') !== null) {
@@ -3877,8 +4851,8 @@ module.exports = {
       var tokens = textParser.parse(id)
       if (tokens) {
         // dynamic component to be resolved later
-        var ctorExp = textParser.tokensToExp(tokens)
-        this.ctorGetter = expParser.parse(ctorExp).get
+        var componentExp = textParser.tokensToExp(tokens)
+        this.componentGetter = expParser.parse(componentExp).get
       } else {
         // static
         this.componentId = id
@@ -3889,18 +4863,18 @@ module.exports = {
 
   resolveComponent: function () {
     this.componentState = PENDING
-    this.vm._resolveComponent(this.componentId, _.bind(function (Ctor) {
+    this.vm._resolveComponent(this.componentId, _.bind(function (Component) {
       if (this.componentState === ABORTED) {
         return
       }
-      this.Ctor = Ctor
+      this.Component = Component
       this.componentState = RESOLVED
       this.realUpdate(this.pendingData)
       this.pendingData = null
     }, this))
   },
 
-    /**
+  /**
    * Resolve a dynamic component to use for an instance.
    * The tricky part here is that there could be dynamic
    * components depending on instance data.
@@ -3923,19 +4897,19 @@ module.exports = {
     for (key in meta) {
       _.define(context, key, meta[key])
     }
-    var id = this.ctorGetter.call(context, context)
-    var Ctor = _.resolveAsset(this.vm.$options, 'components', id)
+    var id = this.componentGetter.call(context, context)
+    var Component = _.resolveAsset(this.vm.$options, 'components', id)
     if (process.env.NODE_ENV !== 'production') {
-      _.assertAsset(Ctor, 'component', id)
+      _.assertAsset(Component, 'component', id)
     }
-    if (!Ctor.options) {
+    if (!Component.options) {
       process.env.NODE_ENV !== 'production' && _.warn(
         'Async resolution is not supported for v-repeat ' +
         '+ dynamic component. (component: ' + id + ')'
       )
       return _.Vue
     }
-    return Ctor
+    return Component
   },
 
   /**
@@ -3948,6 +4922,12 @@ module.exports = {
    */
 
   update: function (data) {
+    if (process.env.NODE_ENV !== 'production' && !_.isArray(data)) {
+      _.warn(
+        'v-repeat pre-converts Objects into Arrays, and ' +
+        'v-repeat filters should always return Arrays.'
+      )
+    }
     if (this.componentId) {
       var state = this.componentState
       if (state === UNRESOLVED) {
@@ -3978,8 +4958,8 @@ module.exports = {
         ? toRefObject(this.vms)
         : this.vms
     }
-    if (this.elId) {
-      this.vm.$$[this.elId] = this.vms.map(function (vm) {
+    if (this.elID) {
+      this.vm.$$[this.elID] = this.vms.map(function (vm) {
         return vm.$el
       })
     }
@@ -4021,6 +5001,14 @@ module.exports = {
       primitive = !isObject(raw)
       vm = !init && this.getVm(raw, i, converted ? obj.$key : null)
       if (vm) { // reusable instance
+
+        if (process.env.NODE_ENV !== 'production' && vm._reused) {
+          _.warn(
+            'Duplicate objects found in v-repeat="' + this.expression + '": ' +
+            JSON.stringify(raw)
+          )
+        }
+
         vm._reused = true
         vm.$index = i // update $index
         // update data for track-by or object repeat,
@@ -4073,7 +5061,7 @@ module.exports = {
       prevEl = targetPrev
         ? targetPrev._staggerCb
           ? targetPrev._staggerAnchor
-          : targetPrev._blockEnd || targetPrev.$el
+          : targetPrev._fragmentEnd || targetPrev.$el
         : start
       if (vm._reused && !vm._staggerCb) {
         currentPrev = findPrevVm(vm, start, this.id)
@@ -4117,39 +5105,35 @@ module.exports = {
       data = raw
     }
     // resolve constructor
-    var Ctor = this.Ctor || this.resolveDynamicComponent(data, meta)
+    var Component = this.Component || this.resolveDynamicComponent(data, meta)
     var parent = this._host || this.vm
     var vm = parent.$addChild({
       el: templateParser.clone(this.template),
       data: data,
-      inherit: this.inherit,
+      inherit: this.inline,
       template: this.inlineTemplate,
       // repeater meta, e.g. $index, $key
       _meta: meta,
       // mark this as an inline-repeat instance
-      _repeat: this.inherit,
+      _repeat: this.inline,
       // is this a component?
       _asComponent: this.asComponent,
       // linker cachable if no inline-template
-      _linkerCachable: !this.inlineTemplate && Ctor !== _.Vue,
+      _linkerCachable: !this.inlineTemplate && Component !== _.Vue,
       // pre-compiled linker for simple repeats
       _linkFn: this._linkFn,
       // identifier, shows that this vm belongs to this collection
       _repeatId: this.id,
       // transclusion content owner
       _context: this.vm
-    }, Ctor)
+    }, Component)
     // cache instance
     if (needCache) {
       this.cacheVm(raw, vm, index, this.converted ? meta.$key : null)
     }
     // sync back changes for two-way bindings of primitive values
-    var type = typeof raw
     var dir = this
-    if (
-      this.rawType === 'object' &&
-      (type === 'string' || type === 'number')
-    ) {
+    if (this.rawType === 'object' && isPrimitive(raw)) {
       vm.$watch(alias || '$value', function (val) {
         if (dir.filters) {
           process.env.NODE_ENV !== 'production' && _.warn(
@@ -4222,7 +5206,7 @@ module.exports = {
         cache[id] = vm
       } else if (!primitive && idKey !== '$index') {
         process.env.NODE_ENV !== 'production' && _.warn(
-          'Duplicate track-by key in v-repeat: ' + id
+          'Duplicate objects with the same track-by key in v-repeat: ' + id
         )
       }
     } else {
@@ -4232,8 +5216,8 @@ module.exports = {
           data[id] = vm
         } else {
           process.env.NODE_ENV !== 'production' && _.warn(
-            'Duplicate objects are not supported in v-repeat ' +
-            'when using components or transitions.'
+            'Duplicate objects found in v-repeat="' + this.expression + '": ' +
+            JSON.stringify(data)
           )
         }
       } else {
@@ -4499,8 +5483,24 @@ function toRefObject (vms) {
   return ref
 }
 
+/**
+ * Check if a value is a primitive one:
+ * String, Number, Boolean, null or undefined.
+ *
+ * @param {*} value
+ * @return {Boolean}
+ */
+
+function isPrimitive (value) {
+  var type = typeof value
+  return value == null ||
+    type === 'string' ||
+    type === 'number' ||
+    type === 'boolean'
+}
+
 }).call(this,require('_process'))
-},{"../compiler":13,"../parsers/expression":53,"../parsers/template":55,"../parsers/text":56,"../util":64,"_process":2}],34:[function(require,module,exports){
+},{"../compiler":20,"../config":22,"../parsers/expression":60,"../parsers/template":62,"../parsers/text":63,"../util":71,"_process":1}],41:[function(require,module,exports){
 var transition = require('../transition')
 
 module.exports = function (value) {
@@ -4510,7 +5510,7 @@ module.exports = function (value) {
   }, this.vm)
 }
 
-},{"../transition":57}],35:[function(require,module,exports){
+},{"../transition":64}],42:[function(require,module,exports){
 var _ = require('../util')
 var prefixes = ['-webkit-', '-moz-', '-ms-']
 var camelPrefixes = ['Webkit', 'Moz', 'ms']
@@ -4622,7 +5622,7 @@ function prefix (prop) {
   }
 }
 
-},{"../util":64}],36:[function(require,module,exports){
+},{"../util":71}],43:[function(require,module,exports){
 var _ = require('../util')
 
 module.exports = {
@@ -4638,7 +5638,7 @@ module.exports = {
   }
 }
 
-},{"../util":64}],37:[function(require,module,exports){
+},{"../util":71}],44:[function(require,module,exports){
 var _ = require('../util')
 var Transition = require('../transition/transition')
 
@@ -4666,8 +5666,9 @@ module.exports = {
   }
 }
 
-},{"../transition/transition":59,"../util":64}],38:[function(require,module,exports){
+},{"../transition/transition":66,"../util":71}],45:[function(require,module,exports){
 var _ = require('../util')
+var clone = require('../parsers/template').clone
 
 // This is the elementDirective that handles <content>
 // transclusions. It relies on the raw content of an
@@ -4691,7 +5692,7 @@ module.exports = {
       return
     }
     var context = host._context
-    var selector = this.el.getAttribute('select')
+    var selector = this._checkParam('select')
     if (!selector) {
       // Default content
       var self = this
@@ -4713,7 +5714,6 @@ module.exports = {
       }
     } else {
       // select content
-      selector = vm.$interpolate(selector)
       var nodes = raw.querySelectorAll(selector)
       if (nodes.length) {
         content = extractFragment(nodes, raw)
@@ -4770,20 +5770,20 @@ function extractFragment (nodes, parent, main) {
     // intact. this ensures proper re-compilation in cases
     // where the outlet is inside a conditional block
     if (main && !node.__v_selected) {
-      frag.appendChild(node.cloneNode(true))
+      frag.appendChild(clone(node))
     } else if (!main && node.parentNode === parent) {
       node.__v_selected = true
-      frag.appendChild(node.cloneNode(true))
+      frag.appendChild(clone(node))
     }
   }
   return frag
 }
 
-},{"../util":64}],39:[function(require,module,exports){
+},{"../parsers/template":62,"../util":71}],46:[function(require,module,exports){
 exports.content = require('./content')
 exports.partial = require('./partial')
 
-},{"./content":38,"./partial":40}],40:[function(require,module,exports){
+},{"./content":45,"./partial":47}],47:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var templateParser = require('../parsers/template')
@@ -4860,7 +5860,7 @@ module.exports = {
 }
 
 }).call(this,require('_process'))
-},{"../cache":10,"../compiler":13,"../directives/if":23,"../parsers/template":55,"../parsers/text":56,"../util":64,"_process":2}],41:[function(require,module,exports){
+},{"../cache":17,"../compiler":20,"../directives/if":30,"../parsers/template":62,"../parsers/text":63,"../util":71,"_process":1}],48:[function(require,module,exports){
 var _ = require('../util')
 var Path = require('../parsers/path')
 
@@ -4872,20 +5872,27 @@ var Path = require('../parsers/path')
  * @param {String} dataKey
  */
 
-exports.filterBy = function (arr, search, delimiter, dataKey) {
-  // allow optional `in` delimiter
-  // because why not
-  if (delimiter && delimiter !== 'in') {
-    dataKey = delimiter
-  }
+exports.filterBy = function (arr, search, delimiter /* ...dataKeys */) {
   if (search == null) {
     return arr
   }
+  if (typeof search === 'function') {
+    return arr.filter(search)
+  }
   // cast to lowercase string
   search = ('' + search).toLowerCase()
+  // allow optional `in` delimiter
+  // because why not
+  var n = delimiter === 'in' ? 3 : 2
+  // extract and flatten keys
+  var keys = _.toArray(arguments, n).reduce(function (prev, cur) {
+    return prev.concat(cur)
+  }, [])
   return arr.filter(function (item) {
-    return dataKey
-      ? contains(Path.get(item, dataKey), search)
+    return keys.length
+      ? keys.some(function (key) {
+          return contains(Path.get(item, key), search)
+        })
       : contains(item, search)
   })
 }
@@ -4947,7 +5954,7 @@ function contains (val, search) {
   }
 }
 
-},{"../parsers/path":54,"../util":64}],42:[function(require,module,exports){
+},{"../parsers/path":61,"../util":71}],49:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -5011,7 +6018,7 @@ var digitsRE = /(\d{3})(?=\d)/g
 exports.currency = function (value, currency) {
   value = parseFloat(value)
   if (!isFinite(value) || (!value && value !== 0)) return ''
-  currency = currency || '$'
+  currency = currency != null ? currency : '$'
   var stringified = Math.abs(value).toFixed(2)
   var _int = stringified.slice(0, -3)
   var i = _int.length % 3
@@ -5057,6 +6064,7 @@ var keyCodes = {
   esc: 27,
   tab: 9,
   enter: 13,
+  space: 32,
   'delete': 46,
   up: 38,
   left: 37,
@@ -5080,13 +6088,21 @@ exports.key = function (handler, key) {
 // expose keycode hash
 exports.key.keyCodes = keyCodes
 
+exports.debounce = function (handler, delay) {
+  if (!handler) return
+  if (!delay) {
+    delay = 300
+  }
+  return _.debounce(handler, delay)
+}
+
 /**
  * Install special array filters
  */
 
 _.extend(exports, require('./array-filters'))
 
-},{"../util":64,"./array-filters":41}],43:[function(require,module,exports){
+},{"../util":71,"./array-filters":48}],50:[function(require,module,exports){
 var _ = require('../util')
 var Directive = require('../directive')
 var compiler = require('../compiler')
@@ -5123,24 +6139,28 @@ exports._compile = function (el) {
 
     // root is always compiled per-instance, because
     // container attrs and props can be different every time.
-    var rootUnlinkFn =
-      compiler.compileAndLinkRoot(this, el, options)
+    var rootLinker = compiler.compileRoot(el, options)
 
     // compile and link the rest
-    var linker
+    var contentLinkFn
     var ctor = this.constructor
     // component compilation can be cached
     // as long as it's not using inline-template
     if (options._linkerCachable) {
-      linker = ctor.linker
-      if (!linker) {
-        linker = ctor.linker = compiler.compile(el, options)
+      contentLinkFn = ctor.linker
+      if (!contentLinkFn) {
+        contentLinkFn = ctor.linker = compiler.compile(el, options)
       }
     }
-    var contentUnlinkFn = linker
-      ? linker(this, el)
+
+    // link phase
+    var rootUnlinkFn = rootLinker(this, el)
+    var contentUnlinkFn = contentLinkFn
+      ? contentLinkFn(this, el)
       : compiler.compile(el, options)(this, el, host)
 
+    // register composite unlink function
+    // to be called during instance destruction
     this._unlinkFn = function () {
       rootUnlinkFn()
       // passing destroying: true to avoid searching and
@@ -5165,12 +6185,12 @@ exports._compile = function (el) {
 
 exports._initElement = function (el) {
   if (el instanceof DocumentFragment) {
-    this._isBlock = true
-    this.$el = this._blockStart = el.firstChild
-    this._blockEnd = el.lastChild
+    this._isFragment = true
+    this.$el = this._fragmentStart = el.firstChild
+    this._fragmentEnd = el.lastChild
     // set persisted text anchors to empty
-    if (this._blockStart.nodeType === 3) {
-      this._blockStart.data = this._blockEnd.data = ''
+    if (this._fragmentStart.nodeType === 3) {
+      this._fragmentStart.data = this._fragmentEnd.data = ''
     }
     this._blockFragment = el
   } else {
@@ -5284,7 +6304,7 @@ exports._cleanup = function () {
   this.$off()
 }
 
-},{"../compiler":13,"../directive":16,"../util":64}],44:[function(require,module,exports){
+},{"../compiler":20,"../directive":23,"../util":71}],51:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var inDoc = _.inDoc
@@ -5427,7 +6447,7 @@ exports._callHook = function (hook) {
 }
 
 }).call(this,require('_process'))
-},{"../util":64,"_process":2}],45:[function(require,module,exports){
+},{"../util":71,"_process":1}],52:[function(require,module,exports){
 var mergeOptions = require('../util').mergeOptions
 
 /**
@@ -5463,10 +6483,10 @@ exports._init = function (options) {
   this._eventsCount = {}       // for $broadcast optimization
   this._eventCancelled = false // for event cancellation
 
-  // block instance properties
-  this._isBlock = false
-  this._blockStart =    // @type {CommentNode}
-  this._blockEnd = null // @type {CommentNode}
+  // fragment instance properties
+  this._isFragment = false
+  this._fragmentStart =    // @type {CommentNode}
+  this._fragmentEnd = null // @type {CommentNode}
 
   // lifecycle state
   this._isCompiled =
@@ -5518,7 +6538,7 @@ exports._init = function (options) {
   }
 }
 
-},{"../util":64}],46:[function(require,module,exports){
+},{"../util":71}],53:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 
@@ -5577,6 +6597,9 @@ exports._resolveComponent = function (id, cb) {
   if (process.env.NODE_ENV !== 'production') {
     _.assertAsset(factory, 'component', id)
   }
+  if (!factory) {
+    return
+  }
   // async component factory
   if (!factory.options) {
     if (factory.resolved) {
@@ -5612,7 +6635,7 @@ exports._resolveComponent = function (id, cb) {
 }
 
 }).call(this,require('_process'))
-},{"../util":64,"_process":2}],47:[function(require,module,exports){
+},{"../util":71,"_process":1}],54:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var compiler = require('../compiler')
@@ -5652,7 +6675,7 @@ exports._initProps = function () {
   }
   // make sure to convert string selectors into element now
   el = options.el = _.query(el)
-  this._propsUnlinkFn = el && props
+  this._propsUnlinkFn = el && el.nodeType === 1 && props
     ? compiler.compileAndLinkProps(
         this, el, props
       )
@@ -5815,7 +6838,9 @@ exports._initComputed = function () {
         def.set = noop
       } else {
         def.get = userDef.get
-          ? makeComputedGetter(userDef.get, this)
+          ? userDef.cache !== false
+            ? makeComputedGetter(userDef.get, this)
+            : _.bind(userDef.get, this)
           : noop
         def.set = userDef.set
           ? _.bind(userDef.set, this)
@@ -5880,8 +6905,6 @@ exports._initMeta = function () {
 exports._defineMeta = function (key, value) {
   var dep = new Dep()
   Object.defineProperty(this, key, {
-    enumerable: true,
-    configurable: true,
     get: function metaGetter () {
       if (Dep.target) {
         dep.depend()
@@ -5898,7 +6921,7 @@ exports._defineMeta = function (key, value) {
 }
 
 }).call(this,require('_process'))
-},{"../compiler":13,"../observer":50,"../observer/dep":49,"../util":64,"../watcher":68,"_process":2}],48:[function(require,module,exports){
+},{"../compiler":20,"../observer":57,"../observer/dep":56,"../util":71,"../watcher":75,"_process":1}],55:[function(require,module,exports){
 var _ = require('../util')
 var arrayProto = Array.prototype
 var arrayMethods = Object.create(arrayProto)
@@ -5929,7 +6952,7 @@ var arrayMethods = Object.create(arrayProto)
     }
     var result = original.apply(this, args)
     var ob = this.__ob__
-    var inserted
+    var inserted, removed
     switch (method) {
       case 'push':
         inserted = args
@@ -5939,11 +6962,17 @@ var arrayMethods = Object.create(arrayProto)
         break
       case 'splice':
         inserted = args.slice(2)
+        removed = result
+        break
+      case 'pop':
+      case 'shift':
+        removed = [result]
         break
     }
     if (inserted) ob.observeArray(inserted)
+    if (removed) ob.unobserveArray(removed)
     // notify change
-    ob.dep.notify()
+    ob.notify()
     return result
   })
 })
@@ -5992,7 +7021,7 @@ _.define(
 
 module.exports = arrayMethods
 
-},{"../util":64}],49:[function(require,module,exports){
+},{"../util":71}],56:[function(require,module,exports){
 var _ = require('../util')
 
 /**
@@ -6011,15 +7040,13 @@ function Dep () {
 // watcher being evaluated at any time.
 Dep.target = null
 
-var p = Dep.prototype
-
 /**
  * Add a directive subscriber.
  *
  * @param {Directive} sub
  */
 
-p.addSub = function (sub) {
+Dep.prototype.addSub = function (sub) {
   this.subs.push(sub)
 }
 
@@ -6029,7 +7056,7 @@ p.addSub = function (sub) {
  * @param {Directive} sub
  */
 
-p.removeSub = function (sub) {
+Dep.prototype.removeSub = function (sub) {
   this.subs.$remove(sub)
 }
 
@@ -6037,7 +7064,7 @@ p.removeSub = function (sub) {
  * Add self as a dependency to the target watcher.
  */
 
-p.depend = function () {
+Dep.prototype.depend = function () {
   Dep.target.addDep(this)
 }
 
@@ -6045,7 +7072,7 @@ p.depend = function () {
  * Notify all subscribers of a new value.
  */
 
-p.notify = function () {
+Dep.prototype.notify = function () {
   // stablize the subscriber list first
   var subs = _.toArray(this.subs)
   for (var i = 0, l = subs.length; i < l; i++) {
@@ -6055,7 +7082,7 @@ p.notify = function () {
 
 module.exports = Dep
 
-},{"../util":64}],50:[function(require,module,exports){
+},{"../util":71}],57:[function(require,module,exports){
 var _ = require('../util')
 var config = require('../config')
 var Dep = require('./dep')
@@ -6110,7 +7137,7 @@ Observer.create = function (value, vm) {
   ) {
     ob = value.__ob__
   } else if (
-    _.isObject(value) &&
+    (_.isArray(value) || _.isPlainObject(value)) &&
     !Object.isFrozen(value) &&
     !value._isVue
   ) {
@@ -6124,8 +7151,6 @@ Observer.create = function (value, vm) {
 
 // Instance methods
 
-var p = Observer.prototype
-
 /**
  * Walk through each property and convert them into
  * getter/setters. This method should only be called when
@@ -6135,16 +7160,11 @@ var p = Observer.prototype
  * @param {Object} obj
  */
 
-p.walk = function (obj) {
+Observer.prototype.walk = function (obj) {
   var keys = Object.keys(obj)
   var i = keys.length
-  var key, prefix
   while (i--) {
-    key = keys[i]
-    prefix = key.charCodeAt(0)
-    if (prefix !== 0x24 && prefix !== 0x5F) { // skip $ or _
-      this.convert(key, obj[key])
-    }
+    this.convert(keys[i], obj[keys[i]])
   }
 }
 
@@ -6156,7 +7176,7 @@ p.walk = function (obj) {
  * @return {Dep|undefined}
  */
 
-p.observe = function (val) {
+Observer.prototype.observe = function (val) {
   return Observer.create(val)
 }
 
@@ -6166,10 +7186,45 @@ p.observe = function (val) {
  * @param {Array} items
  */
 
-p.observeArray = function (items) {
+Observer.prototype.observeArray = function (items) {
   var i = items.length
   while (i--) {
-    this.observe(items[i])
+    var ob = this.observe(items[i])
+    if (ob) {
+      (ob.parents || (ob.parents = [])).push(this)
+    }
+  }
+}
+
+/**
+ * Remove self from the parent list of removed objects.
+ *
+ * @param {Array} items
+ */
+
+Observer.prototype.unobserveArray = function (items) {
+  var i = items.length
+  while (i--) {
+    var ob = items[i] && items[i].__ob__
+    if (ob) {
+      ob.parents.$remove(this)
+    }
+  }
+}
+
+/**
+ * Notify self dependency, and also parent Array dependency
+ * if any.
+ */
+
+Observer.prototype.notify = function () {
+  this.dep.notify()
+  var parents = this.parents
+  if (parents) {
+    var i = parents.length
+    while (i--) {
+      parents[i].notify()
+    }
   }
 }
 
@@ -6181,7 +7236,7 @@ p.observeArray = function (items) {
  * @param {*} val
  */
 
-p.convert = function (key, val) {
+Observer.prototype.convert = function (key, val) {
   var ob = this
   var childOb = ob.observe(val)
   var dep = new Dep()
@@ -6193,12 +7248,6 @@ p.convert = function (key, val) {
         dep.depend()
         if (childOb) {
           childOb.dep.depend()
-        }
-        if (_.isArray(val)) {
-          for (var e, i = 0, l = val.length; i < l; i++) {
-            e = val[i]
-            e && e.__ob__ && e.__ob__.dep.depend()
-          }
         }
       }
       return val
@@ -6221,7 +7270,7 @@ p.convert = function (key, val) {
  * @param {Vue} vm
  */
 
-p.addVm = function (vm) {
+Observer.prototype.addVm = function (vm) {
   (this.vms || (this.vms = [])).push(vm)
 }
 
@@ -6232,7 +7281,7 @@ p.addVm = function (vm) {
  * @param {Vue} vm
  */
 
-p.removeVm = function (vm) {
+Observer.prototype.removeVm = function (vm) {
   this.vms.$remove(vm)
 }
 
@@ -6269,7 +7318,7 @@ function copyAugment (target, src, keys) {
 
 module.exports = Observer
 
-},{"../config":15,"../util":64,"./array":48,"./dep":49,"./object":51}],51:[function(require,module,exports){
+},{"../config":22,"../util":71,"./array":55,"./dep":56,"./object":58}],58:[function(require,module,exports){
 var _ = require('../util')
 var objProto = Object.prototype
 
@@ -6293,7 +7342,7 @@ _.define(
       return
     }
     ob.convert(key, val)
-    ob.dep.notify()
+    ob.notify()
     if (ob.vms) {
       var i = ob.vms.length
       while (i--) {
@@ -6341,7 +7390,7 @@ _.define(
     if (!ob || _.isReserved(key)) {
       return
     }
-    ob.dep.notify()
+    ob.notify()
     if (ob.vms) {
       var i = ob.vms.length
       while (i--) {
@@ -6353,12 +7402,12 @@ _.define(
   }
 )
 
-},{"../util":64}],52:[function(require,module,exports){
+},{"../util":71}],59:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var cache = new Cache(1000)
 var argRE = /^[^\{\?]+$|^'[^']*'$|^"[^"]*"$/
-var filterTokenRE = /[^\s'"]+|'[^']+'|"[^"]+"/g
+var filterTokenRE = /[^\s'"]+|'[^']*'|"[^"]*"/g
 var reservedArgRE = /^in$|^-?\d+/
 
 /**
@@ -6427,9 +7476,10 @@ function processFilterArg (arg) {
   var stripped = reservedArgRE.test(arg)
     ? arg
     : _.stripQuotes(arg)
+  var dynamic = stripped === false
   return {
-    value: stripped || arg,
-    dynamic: !stripped
+    value: dynamic ? arg : stripped,
+    dynamic: dynamic
   }
 }
 
@@ -6534,7 +7584,7 @@ exports.parse = function (s) {
   return dirs
 }
 
-},{"../cache":10,"../util":64}],53:[function(require,module,exports){
+},{"../cache":17,"../util":71}],60:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Path = require('./path')
@@ -6802,7 +7852,7 @@ exports.isSimplePath = function (exp) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":10,"../util":64,"./path":54,"_process":2}],54:[function(require,module,exports){
+},{"../cache":17,"../util":71,"./path":61,"_process":1}],61:[function(require,module,exports){
 (function (process){
 var _ = require('../util')
 var Cache = require('../cache')
@@ -7154,7 +8204,7 @@ function warnNonExistent (path) {
 }
 
 }).call(this,require('_process'))
-},{"../cache":10,"../util":64,"_process":2}],55:[function(require,module,exports){
+},{"../cache":17,"../util":71,"_process":1}],62:[function(require,module,exports){
 var _ = require('../util')
 var Cache = require('../cache')
 var templateCache = new Cache(1000)
@@ -7212,6 +8262,19 @@ map.rect = [
     'version="1.1">',
   '</svg>'
 ]
+
+/**
+ * Check if a node is a supported template node with a
+ * DocumentFragment content.
+ *
+ * @param {Node} node
+ * @return {Boolean}
+ */
+
+function isRealTemplate (node) {
+  return _.isTemplate(node) &&
+    node.content instanceof DocumentFragment
+}
 
 var tagRE = /<([\w:]+)/
 var entityRE = /&\w+;/
@@ -7277,10 +8340,8 @@ function stringToFragment (templateString) {
 function nodeToFragment (node) {
   // if its a template tag and the browser supports it,
   // its content is already a document fragment.
-  if (
-    _.isTemplate(node) &&
-    node.content instanceof DocumentFragment
-  ) {
+  if (isRealTemplate(node)) {
+    _.trimNode(node.content)
     return node.content
   }
   // script template
@@ -7296,6 +8357,7 @@ function nodeToFragment (node) {
   /* eslint-enable no-cond-assign */
     frag.appendChild(child)
   }
+  _.trimNode(frag)
   return frag
 }
 
@@ -7329,17 +8391,25 @@ var hasTextareaCloneBug = _.inBrowser
  */
 
 exports.clone = function (node) {
+  if (!node.querySelectorAll) {
+    return node.cloneNode()
+  }
   var res = node.cloneNode(true)
   var i, original, cloned
   /* istanbul ignore if */
   if (hasBrokenTemplate) {
+    var clone = res
+    if (isRealTemplate(node)) {
+      node = node.content
+      clone = res.content
+    }
     original = node.querySelectorAll('template')
     if (original.length) {
-      cloned = res.querySelectorAll('template')
+      cloned = clone.querySelectorAll('template')
       i = cloned.length
       while (i--) {
         cloned[i].parentNode.replaceChild(
-          original[i].cloneNode(true),
+          exports.clone(original[i]),
           cloned[i]
         )
       }
@@ -7385,8 +8455,9 @@ exports.parse = function (template, clone, noSelector) {
   // if the template is already a document fragment,
   // do nothing
   if (template instanceof DocumentFragment) {
+    _.trimNode(template)
     return clone
-      ? template.cloneNode(true)
+      ? exports.clone(template)
       : template
   }
 
@@ -7417,7 +8488,7 @@ exports.parse = function (template, clone, noSelector) {
     : frag
 }
 
-},{"../cache":10,"../util":64}],56:[function(require,module,exports){
+},{"../cache":17,"../util":71}],63:[function(require,module,exports){
 var Cache = require('../cache')
 var config = require('../config')
 var dirParser = require('./directive')
@@ -7595,13 +8666,13 @@ function inlineFilters (exp, single) {
   }
 }
 
-},{"../cache":10,"../config":15,"./directive":52}],57:[function(require,module,exports){
+},{"../cache":17,"../config":22,"./directive":59}],64:[function(require,module,exports){
 var _ = require('../util')
 
 /**
  * Append with transition.
  *
- * @oaram {Element} el
+ * @param {Element} el
  * @param {Element} target
  * @param {Vue} vm
  * @param {Function} [cb]
@@ -7616,7 +8687,7 @@ exports.append = function (el, target, vm, cb) {
 /**
  * InsertBefore with transition.
  *
- * @oaram {Element} el
+ * @param {Element} el
  * @param {Element} target
  * @param {Vue} vm
  * @param {Function} [cb]
@@ -7631,7 +8702,7 @@ exports.before = function (el, target, vm, cb) {
 /**
  * Remove with transition.
  *
- * @oaram {Element} el
+ * @param {Element} el
  * @param {Vue} vm
  * @param {Function} [cb]
  */
@@ -7646,7 +8717,7 @@ exports.remove = function (el, vm, cb) {
  * Remove by appending to another parent with transition.
  * This is only used in block operations.
  *
- * @oaram {Element} el
+ * @param {Element} el
  * @param {Element} target
  * @param {Vue} vm
  * @param {Function} [cb]
@@ -7694,7 +8765,7 @@ exports.blockRemove = function (start, end, vm) {
 /**
  * Apply transitions with an operation callback.
  *
- * @oaram {Element} el
+ * @param {Element} el
  * @param {Number} direction
  *                  1: enter
  *                 -1: leave
@@ -7725,7 +8796,7 @@ var apply = exports.apply = function (el, direction, op, vm, cb) {
   transition[action](op, cb)
 }
 
-},{"../util":64}],58:[function(require,module,exports){
+},{"../util":71}],65:[function(require,module,exports){
 var _ = require('../util')
 var queue = []
 var queued = false
@@ -7762,7 +8833,7 @@ function flush () {
   return f
 }
 
-},{"../util":64}],59:[function(require,module,exports){
+},{"../util":71}],66:[function(require,module,exports){
 var _ = require('../util')
 var queue = require('./queue')
 var addClass = _.addClass
@@ -7775,6 +8846,8 @@ var animDurationProp = _.animationProp + 'Duration'
 var TYPE_TRANSITION = 1
 var TYPE_ANIMATION = 2
 
+var uid = 0
+
 /**
  * A Transition object that encapsulates the state and logic
  * of the transition.
@@ -7786,6 +8859,7 @@ var TYPE_ANIMATION = 2
  */
 
 function Transition (el, id, hooks, vm) {
+  this.id = uid++
   this.el = el
   this.enterClass = id + '-enter'
   this.leaveClass = id + '-leave'
@@ -7798,6 +8872,8 @@ function Transition (el, id, hooks, vm) {
   this.pendingJsCb =
   this.op =
   this.cb = null
+  this.justEntered = false
+  this.entered = this.left = false
   this.typeCache = {}
   // bind
   var self = this
@@ -7840,7 +8916,11 @@ p.enter = function (op, cb) {
   this.cb = cb
   addClass(this.el, this.enterClass)
   op()
+  this.entered = false
   this.callHookWithCb('enter')
+  if (this.entered) {
+    return // user called done synchronously.
+  }
   this.cancel = this.hooks && this.hooks.enterCancelled
   queue.push(this.enterNextTick)
 }
@@ -7852,16 +8932,24 @@ p.enter = function (op, cb) {
  */
 
 p.enterNextTick = function () {
-  var type = this.getCssTransitionType(this.enterClass)
+  this.justEntered = true
+  _.nextTick(function () {
+    this.justEntered = false
+  }, this)
   var enterDone = this.enterDone
-  if (type === TYPE_TRANSITION) {
-    // trigger transition by removing enter class now
+  var type = this.getCssTransitionType(this.enterClass)
+  if (!this.pendingJsCb) {
+    if (type === TYPE_TRANSITION) {
+      // trigger transition by removing enter class now
+      removeClass(this.el, this.enterClass)
+      this.setupCssCb(transitionEndEvent, enterDone)
+    } else if (type === TYPE_ANIMATION) {
+      this.setupCssCb(animationEndEvent, enterDone)
+    } else {
+      enterDone()
+    }
+  } else if (type === TYPE_TRANSITION) {
     removeClass(this.el, this.enterClass)
-    this.setupCssCb(transitionEndEvent, enterDone)
-  } else if (type === TYPE_ANIMATION) {
-    this.setupCssCb(animationEndEvent, enterDone)
-  } else if (!this.pendingJsCb) {
-    enterDone()
   }
 }
 
@@ -7870,6 +8958,7 @@ p.enterNextTick = function () {
  */
 
 p.enterDone = function () {
+  this.entered = true
   this.cancel = this.pendingJsCb = null
   removeClass(this.el, this.enterClass)
   this.callHook('afterEnter')
@@ -7903,12 +8992,25 @@ p.leave = function (op, cb) {
   this.op = op
   this.cb = cb
   addClass(this.el, this.leaveClass)
+  this.left = false
   this.callHookWithCb('leave')
+  if (this.left) {
+    return // user called done synchronously.
+  }
   this.cancel = this.hooks && this.hooks.leaveCancelled
-  // only need to do leaveNextTick if there's no explicit
-  // js callback
-  if (!this.pendingJsCb) {
-    queue.push(this.leaveNextTick)
+  // only need to handle leaveDone if
+  // 1. the transition is already done (synchronously called
+  //    by the user, which causes this.op set to null)
+  // 2. there's no explicit js callback
+  if (this.op && !this.pendingJsCb) {
+    // if a CSS transition leaves immediately after enter,
+    // the transitionend event never fires. therefore we
+    // detect such cases and end the leave immediately.
+    if (this.justEntered) {
+      this.leaveDone()
+    } else {
+      queue.push(this.leaveNextTick)
+    }
   }
 }
 
@@ -7933,11 +9035,13 @@ p.leaveNextTick = function () {
  */
 
 p.leaveDone = function () {
+  this.left = true
   this.cancel = this.pendingJsCb = null
   this.op()
   removeClass(this.el, this.leaveClass)
   this.callHook('afterLeave')
   if (this.cb) this.cb()
+  this.op = null
 }
 
 /**
@@ -8072,7 +9176,7 @@ p.setupCssCb = function (event, cb) {
 
 module.exports = Transition
 
-},{"../util":64,"./queue":58}],60:[function(require,module,exports){
+},{"../util":71,"./queue":65}],67:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 
@@ -8200,7 +9304,7 @@ function formatValue (val) {
 }
 
 }).call(this,require('_process'))
-},{"./index":64,"_process":2}],61:[function(require,module,exports){
+},{"./index":71,"_process":1}],68:[function(require,module,exports){
 (function (process){
 /**
  * Enable debug utilities.
@@ -8268,7 +9372,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"_process":2}],62:[function(require,module,exports){
+},{"../config":22,"_process":1}],69:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -8476,8 +9580,7 @@ exports.extractContent = function (el, asFragment) {
     el = el.content
   }
   if (el.hasChildNodes()) {
-    trim(el, el.firstChild)
-    trim(el, el.lastChild)
+    exports.trimNode(el)
     rawContent = asFragment
       ? document.createDocumentFragment()
       : document.createElement('div')
@@ -8490,9 +9593,20 @@ exports.extractContent = function (el, asFragment) {
   return rawContent
 }
 
-function trim (content, node) {
+/**
+ * Trim possible empty head/tail textNodes inside a parent.
+ *
+ * @param {Node} node
+ */
+
+exports.trimNode = function (node) {
+  trim(node, node.firstChild)
+  trim(node, node.lastChild)
+}
+
+function trim (parent, node) {
   if (node && node.nodeType === 3 && !node.data.trim()) {
-    content.removeChild(node)
+    parent.removeChild(node)
   }
 }
 
@@ -8512,7 +9626,7 @@ exports.isTemplate = function (el) {
 /**
  * Create an "anchor" for performing dom insertion/removals.
  * This is used in a number of scenarios:
- * - block instance
+ * - fragment instance
  * - v-html
  * - v-if
  * - component
@@ -8534,7 +9648,7 @@ exports.createAnchor = function (content, persist) {
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"./index":64,"_process":2}],63:[function(require,module,exports){
+},{"../config":22,"./index":71,"_process":1}],70:[function(require,module,exports){
 // can we use __proto__?
 exports.hasProto = '__proto__' in {}
 
@@ -8587,7 +9701,7 @@ exports.nextTick = (function () {
   var callbacks = []
   var pending = false
   var timerFunc
-  function handle () {
+  function nextTickHandler () {
     pending = false
     var copies = callbacks.slice(0)
     callbacks = []
@@ -8598,7 +9712,7 @@ exports.nextTick = (function () {
   /* istanbul ignore if */
   if (typeof MutationObserver !== 'undefined') {
     var counter = 1
-    var observer = new MutationObserver(handle)
+    var observer = new MutationObserver(nextTickHandler)
     var textNode = document.createTextNode(counter)
     observer.observe(textNode, {
       characterData: true
@@ -8617,11 +9731,11 @@ exports.nextTick = (function () {
     callbacks.push(func)
     if (pending) return
     pending = true
-    timerFunc(handle, 0)
+    timerFunc(nextTickHandler, 0)
   }
 })()
 
-},{}],64:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var lang = require('./lang')
 var extend = lang.extend
 
@@ -8632,9 +9746,9 @@ extend(exports, require('./options'))
 extend(exports, require('./component'))
 extend(exports, require('./debug'))
 
-},{"./component":60,"./debug":61,"./dom":62,"./env":63,"./lang":65,"./options":66}],65:[function(require,module,exports){
+},{"./component":67,"./debug":68,"./dom":69,"./env":70,"./lang":72,"./options":73}],72:[function(require,module,exports){
 /**
- * Check is a string starts with $ or _
+ * Check if a string starts with $ or _
  *
  * @param {String} str
  * @return {Boolean}
@@ -8660,20 +9774,22 @@ exports.toString = function (value) {
 }
 
 /**
- * Check and convert possible numeric numbers before
- * setting back to data
+ * Check and convert possible numeric strings to numbers
+ * before setting back to data
  *
  * @param {*} value
  * @return {*|Number}
  */
 
 exports.toNumber = function (value) {
-  return (
-    isNaN(value) ||
-    value === null ||
-    typeof value === 'boolean'
-  ) ? value
-    : Number(value)
+  if (typeof value !== 'string') {
+    return value
+  } else {
+    var parsed = Number(value)
+    return isNaN(parsed)
+      ? value
+      : parsed
+  }
 }
 
 /**
@@ -8824,8 +9940,9 @@ exports.isObject = function (obj) {
  */
 
 var toString = Object.prototype.toString
+var OBJECT_STRING = '[object Object]'
 exports.isPlainObject = function (obj) {
-  return toString.call(obj) === '[object Object]'
+  return toString.call(obj) === OBJECT_STRING
 }
 
 /**
@@ -8896,7 +10013,8 @@ exports.debounce = function (func, wait) {
  */
 
 exports.indexOf = function (arr, obj) {
-  for (var i = 0, l = arr.length; i < l; i++) {
+  var i = arr.length
+  while (i--) {
     if (arr[i] === obj) return i
   }
   return -1
@@ -8921,7 +10039,26 @@ exports.cancellable = function (fn) {
   return cb
 }
 
-},{}],66:[function(require,module,exports){
+/**
+ * Check if two values are loosely equal - that is,
+ * if they are plain objects, do they have the same shape?
+ *
+ * @param {*} a
+ * @param {*} b
+ * @return {Boolean}
+ */
+
+exports.looseEqual = function (a, b) {
+  /* eslint-disable eqeqeq */
+  return a == b || (
+    exports.isObject(a) && exports.isObject(b)
+      ? JSON.stringify(a) === JSON.stringify(b)
+      : false
+  )
+  /* eslint-enable eqeqeq */
+}
+
+},{}],73:[function(require,module,exports){
 (function (process){
 var _ = require('./index')
 var config = require('../config')
@@ -9265,16 +10402,24 @@ exports.mergeOptions = function merge (parent, child, vm) {
  */
 
 exports.resolveAsset = function resolve (options, type, id) {
-  var asset = options[type][id]
-  while (!config.strict && !asset && options._parent) {
-    options = options._parent.$options
-    asset = options[type][id]
+  var camelizedId = _.camelize(id)
+  var pascalizedId = camelizedId.charAt(0).toUpperCase() + camelizedId.slice(1)
+  var assets = options[type]
+  var asset = assets[id] || assets[camelizedId] || assets[pascalizedId]
+  while (
+    !asset &&
+    options._parent &&
+    (!config.strict || options._repeat)
+  ) {
+    options = (options._context || options._parent).$options
+    assets = options[type]
+    asset = assets[id] || assets[camelizedId] || assets[pascalizedId]
   }
   return asset
 }
 
 }).call(this,require('_process'))
-},{"../config":15,"./index":64,"_process":2}],67:[function(require,module,exports){
+},{"../config":22,"./index":71,"_process":1}],74:[function(require,module,exports){
 var _ = require('./util')
 var extend = _.extend
 
@@ -9365,7 +10510,7 @@ extend(p, require('./api/lifecycle'))
 
 module.exports = _.Vue = Vue
 
-},{"./api/child":3,"./api/data":4,"./api/dom":5,"./api/events":6,"./api/global":7,"./api/lifecycle":8,"./directives":24,"./element-directives":39,"./filters":42,"./instance/compile":43,"./instance/events":44,"./instance/init":45,"./instance/misc":46,"./instance/scope":47,"./util":64}],68:[function(require,module,exports){
+},{"./api/child":10,"./api/data":11,"./api/dom":12,"./api/events":13,"./api/global":14,"./api/lifecycle":15,"./directives":31,"./element-directives":46,"./filters":49,"./instance/compile":50,"./instance/events":51,"./instance/init":52,"./instance/misc":53,"./instance/scope":54,"./util":71}],75:[function(require,module,exports){
 (function (process){
 var _ = require('./util')
 var config = require('./config')
@@ -9387,35 +10532,34 @@ var uid = 0
  *                 - {Boolean} twoWay
  *                 - {Boolean} deep
  *                 - {Boolean} user
+ *                 - {Boolean} sync
  *                 - {Boolean} lazy
  *                 - {Function} [preProcess]
  * @constructor
  */
 
 function Watcher (vm, expOrFn, cb, options) {
+  // mix in options
+  if (options) {
+    _.extend(this, options)
+  }
   var isFn = typeof expOrFn === 'function'
   this.vm = vm
   vm._watchers.push(this)
-  this.expression = isFn ? '' : expOrFn
+  this.expression = isFn ? expOrFn.toString() : expOrFn
   this.cb = cb
   this.id = ++uid // uid for batching
   this.active = true
-  options = options || {}
-  this.deep = !!options.deep
-  this.user = !!options.user
-  this.twoWay = !!options.twoWay
-  this.lazy = !!options.lazy
-  this.dirty = this.lazy
-  this.filters = options.filters
-  this.preProcess = options.preProcess
+  this.dirty = this.lazy // for lazy watchers
   this.deps = []
   this.newDeps = null
+  this.prevError = null // for async error stacks
   // parse expression for getter/setter
   if (isFn) {
     this.getter = expOrFn
     this.setter = undefined
   } else {
-    var res = expParser.parse(expOrFn, options.twoWay)
+    var res = expParser.parse(expOrFn, this.twoWay)
     this.getter = res.get
     this.setter = res.set
   }
@@ -9427,15 +10571,13 @@ function Watcher (vm, expOrFn, cb, options) {
   this.queued = this.shallow = false
 }
 
-var p = Watcher.prototype
-
 /**
  * Add a dependency to this directive.
  *
  * @param {Dep} dep
  */
 
-p.addDep = function (dep) {
+Watcher.prototype.addDep = function (dep) {
   var newDeps = this.newDeps
   var old = this.deps
   if (_.indexOf(newDeps, dep) < 0) {
@@ -9453,7 +10595,7 @@ p.addDep = function (dep) {
  * Evaluate the getter, and re-collect dependencies.
  */
 
-p.get = function () {
+Watcher.prototype.get = function () {
   this.beforeGet()
   var vm = this.vm
   var value
@@ -9468,8 +10610,8 @@ p.get = function () {
         'Error when evaluating expression "' +
         this.expression + '". ' +
         (config.debug
-          ? '' :
-          'Turn on debug mode to see stack trace.'
+          ? ''
+          : 'Turn on debug mode to see stack trace.'
         ), e
       )
     }
@@ -9495,7 +10637,7 @@ p.get = function () {
  * @param {*} value
  */
 
-p.set = function (value) {
+Watcher.prototype.set = function (value) {
   var vm = this.vm
   if (this.filters) {
     value = vm._applyFilters(
@@ -9520,7 +10662,7 @@ p.set = function (value) {
  * Prepare for dependency collection.
  */
 
-p.beforeGet = function () {
+Watcher.prototype.beforeGet = function () {
   Dep.target = this
   this.newDeps = []
 }
@@ -9529,7 +10671,7 @@ p.beforeGet = function () {
  * Clean up for dependency collection.
  */
 
-p.afterGet = function () {
+Watcher.prototype.afterGet = function () {
   Dep.target = null
   var i = this.deps.length
   while (i--) {
@@ -9549,10 +10691,10 @@ p.afterGet = function () {
  * @param {Boolean} shallow
  */
 
-p.update = function (shallow) {
+Watcher.prototype.update = function (shallow) {
   if (this.lazy) {
     this.dirty = true
-  } else if (!config.async) {
+  } else if (this.sync || !config.async) {
     this.run()
   } else {
     // if queued, only overwrite shallow with non-shallow,
@@ -9563,6 +10705,11 @@ p.update = function (shallow) {
         : false
       : !!shallow
     this.queued = true
+    // record before-push error stack in debug mode
+    /* istanbul ignore if */
+    if (process.env.NODE_ENV !== 'production' && config.debug) {
+      this.prevError = new Error('[vue] async stack trace')
+    }
     batcher.push(this)
   }
 }
@@ -9572,7 +10719,7 @@ p.update = function (shallow) {
  * Will be called by the batcher.
  */
 
-p.run = function () {
+Watcher.prototype.run = function () {
   if (this.active) {
     var value = this.get()
     if (
@@ -9583,9 +10730,28 @@ p.run = function () {
       // non-shallow update (caused by a vm digest).
       ((_.isArray(value) || this.deep) && !this.shallow)
     ) {
+      // set new value
       var oldValue = this.value
       this.value = value
-      this.cb(value, oldValue)
+      // in debug + async mode, when a watcher callbacks
+      // throws, we also throw the saved before-push error
+      // so the full cross-tick stack trace is available.
+      var prevError = this.prevError
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'production' &&
+          config.debug && prevError) {
+        this.prevError = null
+        try {
+          this.cb.call(this.vm, value, oldValue)
+        } catch (e) {
+          _.nextTick(function () {
+            throw prevError
+          }, 0)
+          throw e
+        }
+      } else {
+        this.cb.call(this.vm, value, oldValue)
+      }
     }
     this.queued = this.shallow = false
   }
@@ -9596,7 +10762,7 @@ p.run = function () {
  * This only gets called for lazy watchers.
  */
 
-p.evaluate = function () {
+Watcher.prototype.evaluate = function () {
   // avoid overwriting another watcher that is being
   // collected.
   var current = Dep.target
@@ -9609,7 +10775,7 @@ p.evaluate = function () {
  * Depend on all deps collected by this watcher.
  */
 
-p.depend = function () {
+Watcher.prototype.depend = function () {
   var i = this.deps.length
   while (i--) {
     this.deps[i].depend()
@@ -9620,7 +10786,7 @@ p.depend = function () {
  * Remove self from all dependencies' subcriber list.
  */
 
-p.teardown = function () {
+Watcher.prototype.teardown = function () {
   if (this.active) {
     // remove self from vm's watcher list
     // we can skip this if the vm if being destroyed
@@ -9661,4 +10827,394 @@ function traverse (obj) {
 module.exports = Watcher
 
 }).call(this,require('_process'))
-},{"./batcher":9,"./config":15,"./observer/dep":49,"./parsers/expression":53,"./util":64,"_process":2}]},{},[1]);
+},{"./batcher":16,"./config":22,"./observer/dep":56,"./parsers/expression":60,"./util":71,"_process":1}],76:[function(require,module,exports){
+'use strict';
+
+var Vue = require('vue');
+
+Vue.use(require('vue-resource'));
+
+Vue.config.debug = true; // turn on debugging mode
+
+new Vue({
+    el: '#tipspromenad',
+    data: {
+        tipsID: '',
+        savedMsg: false,
+        postData: {
+            _token: $('meta[name="_token"]').attr('content'),
+            tipsID: document.getElementById('tipspromenad-name').dataset.activeTipspromenad
+        },
+        orderOfSelectedQuestions: [],
+        test: 'Hello world',
+        selectedQuestions: [],
+        allQuestions: [],
+        tempSelectedQ: []
+    },
+
+    components: {
+        selectedQuestions: require('./views/selectedQuestions')
+    },
+    ready: function ready() {
+        var tips = document.getElementById('tipspromenad-name');
+        this.tipsID = tips.dataset.activeTipspromenad;
+        this.getAllQuestions();
+        this.getTrueDocumentHeight(0);
+    },
+    filters: {
+        setButtonPropertiesFilter: function setButtonPropertiesFilter(questions) {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = questions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var question = _step.value;
+
+                    if (question.selected === true) {
+                        // console.log('btn förändrad i filter ID: "'+question.id+'"');
+                        this.setAddedProperties(question);
+                    } else {
+                        this.setRemovedProperties(question);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator['return']) {
+                        _iterator['return']();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return questions;
+        }
+    },
+    methods: {
+        getAllQuestions: function getAllQuestions() {
+            this.$http.get('/tipspromenad/vuejs/all/questions/' + this.tipsID, function (allQuestions) {
+                this.$set('allQuestions', allQuestions);
+                this.getOrderOfSelectedQuestions();
+            });
+        },
+        getOrderOfSelectedQuestions: function getOrderOfSelectedQuestions() {
+            this.$http.get('/tipspromenad/vuejs/orderOfQuestions/' + this.tipsID, function (orderOfSelectedQuestions) {
+                this.$set('orderOfSelectedQuestions', orderOfSelectedQuestions);
+                this.addToSelectedQuestion();
+            });
+        },
+        addToSelectedQuestion: function addToSelectedQuestion() {
+            var $that = this;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = $that.allQuestions[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var question = _step2.value;
+
+                    var index = $that.orderOfSelectedQuestions.indexOf(question.id.toString());
+                    // console.log('finding Index id:'+question.id + ' index:'+index)
+                    if (index > -1) {
+                        // console.log('add index: '+index +' value: "'+question.id+'"')
+                        $that.addRemoveQeuestion(question, index);
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                        _iterator2['return']();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+        },
+        addRemoveQeuestion: function addRemoveQeuestion(question) {
+            var indexSpecific = arguments.length <= 1 || arguments[1] === undefined ? "false" : arguments[1];
+
+            if (question.selected == true) {
+                //ta bort fråga
+                console.log('removed ID: "' + question.id + '"');
+                this.removeQuestionFromSelected(question);
+                this.setRemovedProperties(question);
+                this.saveAndSyncSelectedQuestions();
+            } else {
+                //lägg till fråga
+                console.log('added ID: "' + question.id + '"');
+                this.setAddedProperties(question);
+                if (indexSpecific != "false") {
+                    this.selectedQuestions.$add(indexSpecific, question);
+                } else {
+                    this.selectedQuestions.push(question);
+                    console.log('pushing to ordOfSeQs!');
+                    this.orderOfSelectedQuestions.push(question.id);
+                    this.saveAndSyncSelectedQuestions();
+                }
+            }
+            question.$set('selected', !question.selected);
+        },
+        setAddedProperties: function setAddedProperties(question) {
+            question.$set('btnClasses', 'btn-default');
+            this.selectedQuestions.$delete(question);
+            $('#addRemoveBtn' + question.id).attr('disabled', 'disabled');
+        },
+        setRemovedProperties: function setRemovedProperties(question) {
+            question.$set('btnClasses', 'btn-primary');
+            $('#addRemoveBtn' + question.id).attr('disabled', false);
+        },
+        addQeuestion: function addQeuestion(question) {
+            this.addRemoveQeuestion(question);
+        },
+        removeQuestion: function removeQuestion(question) {
+            this.addRemoveQeuestion(question);
+        },
+        removeQuestionFromSelected: function removeQuestionFromSelected(question) {
+            var dropQ;
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = this.selectedQuestions[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var sQuestion = _step3.value;
+
+                    if (sQuestion.id == question.id) {
+                        dropQ = sQuestion;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+                        _iterator3['return']();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
+            }
+
+            this.selectedQuestions.$remove(dropQ);
+
+            var index = this.orderOfSelectedQuestions.indexOf(question.id.toString());
+            console.log('index:' + index);
+            if (index > -1) {
+                this.orderOfSelectedQuestions.splice(index, 1);
+            }
+        },
+        setNewOrderOfSelectedQuestions: function setNewOrderOfSelectedQuestions(newArray) {
+            console.log('här är den nya ordningen: ' + newArray);
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
+
+            try {
+                for (var _iterator4 = this.selectedQuestions[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var question = _step4.value;
+                    var _iteratorNormalCompletion5 = true;
+                    var _didIteratorError5 = false;
+                    var _iteratorError5 = undefined;
+
+                    try {
+                        for (var _iterator5 = newArray[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                            var id = _step5.value;
+
+                            var newIndex = newArray.indexOf(id);
+                            if (id == question.id) {
+                                this.tempSelectedQ.$add(newIndex, question);
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError5 = true;
+                        _iteratorError5 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+                                _iterator5['return']();
+                            }
+                        } finally {
+                            if (_didIteratorError5) {
+                                throw _iteratorError5;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+                        _iterator4['return']();
+                    }
+                } finally {
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
+                    }
+                }
+            }
+
+            this.selectedQuestions = this.tempSelectedQ;
+            this.tempSelectedQ = [];
+            this.orderOfSelectedQuestions = newArray;
+            this.saveAndSyncSelectedQuestions();
+            return 'success dude!';
+        },
+        showSavedMsg: function showSavedMsg() {
+            this.savedMsg = true;
+            var $that = this;
+            $('.saved-container').addClass('saved-container-z-index');
+            setTimeout(function () {
+                $('.saved-container').removeClass('saved-container-z-index');
+                $that.savedMsg = false;
+            }, 2000);
+        },
+        fragebankenExpand: function fragebankenExpand(id, e) {
+            var $this = $("#fragebanken-question-" + id);
+            var h = $this[0].scrollHeight;
+
+            if ($this.hasClass('hide-trunkated')) {
+                // console.log('trunkate scrollHeight: ' + h);
+                $this.animate({ height: 38 }, 200).removeClass('hide-trunkated').addClass('trunkated');
+            } else {
+                // console.log('expand scrollHeight: ' + h);
+                $this.animate({ height: h }, 200).addClass('hide-trunkated').removeClass('trunkated');
+            }
+        },
+        saveAndSyncSelectedQuestions: function saveAndSyncSelectedQuestions() {
+            var data = {
+                order_of_questions: this.orderOfSelectedQuestions,
+                _token: $('meta[name="_token"]').attr('content'),
+                tipsID: document.getElementById('tipspromenad-name').dataset.activeTipspromenad
+            };
+            this.$http.post('/tipspromenad/save-and-sync-selected-questions', data, function (returnData) {
+                console.log('VueJS.syncQ(|' + returnData + '])');
+                this.showSavedMsg();
+            });
+            return 'saved and synced :)';
+        },
+        getTrueDocumentHeight: function getTrueDocumentHeight(delay) {
+            setTimeout(function () {
+                var body = document.body,
+                    html = document.documentElement;
+                var docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+                console.log(docHeight);
+                if (docHeight > 600) {
+                    /* activate sidebar */
+                    $('#sidebarAffix').affix({
+                        offset: {
+                            top: 60,
+                            bottom: 80
+                        }
+                    });
+                };
+            }, delay);
+        }
+    }
+});
+
+},{"./views/selectedQuestions":77,"vue":74,"vue-resource":3}],77:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  template: require('./selectedQuestions.template.html'),
+
+  props: ['remove-question', 'selected-questions', 'new-order-of-selected'],
+
+  data: function data() {
+    return {
+      tempRemoveQuestion: ''
+    };
+  },
+  ready: function ready() {
+    var $this = this;
+    $(".list-group").sortable({
+      connectWith: ".list-group",
+      handle: ".sortable-handle",
+      cancel: ".portlet-toggle",
+      placeholder: "selected-question-placeholder",
+      forcePlaceholderSize: true,
+      start: function start(event, ui) {
+        console.log('start of sortable');
+      },
+      stop: function stop(event) {
+        console.log('stop of sortable');
+        var tempArr = [];
+        $('div[data-question-id]').each(function () {
+          tempArr.push($(this).attr('data-question-id'));
+        });
+        console.log('success to add? : ' + $this.newOrderOfSelected(tempArr));
+      }
+    });
+    $('body').on('click', function (e) {
+      $('.popoverTest').each(function () {
+        //the 'is' for buttons that trigger popups
+        //the 'has' for icons within a button that triggers a popup
+        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+          $(this).popover('hide');
+          $(this).popover('destroy');
+        }
+      });
+    });
+  },
+  methods: {
+    removeQuestion: function removeQuestion(question) {},
+    newOrderOfSelected: function newOrderOfSelected(newArray) {},
+    funcStuff: function funcStuff(question) {
+      console.log('preparing tempQuestion.id: ' + question.id);
+      this.tempRemoveQuestion = question;
+      $(".popoverTest").popover({
+        html: true,
+        placement: 'left',
+        container: '#sidebarAffix',
+        content: '<div><i class="fa fa-pencil-square-o fa-2x text-primary text-hover pointer" alt="Redigera fråga" alt="Redigera fråga" onclick="console.log(edit id:' + question.id + ')"></i><i class="fa fa-remove fa-2x text-danger text-hover pointer" alt="Ta bort fråga" title="Ta bort fråga" onclick="event.preventDefault(); ' + "$('#tempRemoveButton').click()" + '"></i></div>'
+      }).bind(question);
+      $(".popoverTest").popover('show');
+      // content: function() {
+      //   return $('#popoverExampleTwoHiddenContent').html();
+      // }
+    },
+    removeSpecialTrigger: function removeSpecialTrigger() {
+      this.removeQuestion(this.tempRemoveQuestion);
+      this.tempRemoveQuestion = '';
+    },
+    expandTrunkatedItem: function expandTrunkatedItem(id, e) {
+      console.log('expandTrunkatedItem plz');
+      if ($(e.target).is('.trunkated-text, .selected-question-number, .selected-question-right-answer, .ettkrysstva-list, .ettkrysstva-list li')) {
+        console.log('expand trunkated item');
+        var that = $('#selectedQID' + id);
+        var h = that[0].scrollHeight;
+
+        if (that.hasClass('hide-trunkated')) {
+          that.animate({ height: 38 }, 200).removeClass('hide-trunkated').addClass('trunkated');
+        } else {
+          console.log('scrollHeight: ' + h);
+          that.animate({ height: h }, 200).addClass('hide-trunkated').removeClass('trunkated');
+        }
+      } else if ($(e.target).is('.fa-remove')) {
+        e.preventDefault();
+        console.log('remove plz');
+      }
+    }
+
+  }
+};
+
+},{"./selectedQuestions.template.html":78}],78:[function(require,module,exports){
+module.exports = '<div id="ulScroll">\n  <div class="list-group">\n\n    <div class="list-group-item trunkated-item trunkated"\n        v-repeat="question: selectedQuestions"\n        v-on="click: expandTrunkatedItem(question.id, $event)"\n        data-question-id="{{ question.id }}" id="selectedQID{{ question.id }}"\n    >\n      <div class="row">\n        <div class="col-xs-8 col-sm-7 col-md-8">\n          <div class="selected-question-number pull-left">{{ $index+1 }}.</div>\n          <p class="list-group-item-text trunkated-text">\n            id: {{ question.id }} - {{ question.question }}\n          </p>\n        </div>\n        <div class="col-xs-4 col-sm-5 col-md-4 text-gray-light selected-question-buttons text-center">\n          <div class="selected-question-right-answer pull-left">{{ question.correct_answer }}</div>\n          <a href="#!" class="popoverTest btn-group elipsis-buttonelipsis-button" v-on="click: funcStuff(question)"><i class="fa fa-ellipsis-v fa-2x"></i></a>\n          <!-- Popover 2 hidden content -->\n        <span>\n          <i class="fa fa-arrows-v fa-2x sortable-handle"></i>\n        </span>\n      </div>\n      <div class="col-xs-12 trunkated-text">\n        <ol class="ettkrysstva-list">\n          <li class="ettkrysstva-list-item">\n            {{ question.answer1 }}\n          </li>\n          <li class="ettkrysstva-list-item">\n            {{ question.answerx }}\n          </li>\n          <li class="ettkrysstva-list-item">\n            {{ question.answer2 }}\n          </li>\n        </ol>\n      </div><!-- /.col-xs-12 -->\n    </div><!-- /.row -->\n  </div><!-- /.list-group-item -->\n</div><!-- /.list-group -->\n</div><!-- /.ulScroll -->\n\n<div id="tempRemoveButton" class="hidden" v-on="click: removeSpecialTrigger()"></div>\n\n';
+},{}]},{},[76]);

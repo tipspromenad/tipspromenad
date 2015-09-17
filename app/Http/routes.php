@@ -15,6 +15,11 @@ Route::group(['namespace' => 'Api'], function ()
 	require_once(__DIR__ . "/Routes/Api/ApiRoutes.php");
 });
 
+Route::group(['namespace' => 'Frontend'], function ()
+{
+	require_once(__DIR__ . "/Routes/Frontend/SkapaTipspromenadRoutes.php");
+});
+
 
 /**
  * Backend Routes
