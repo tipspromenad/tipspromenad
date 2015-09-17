@@ -69,14 +69,7 @@ new Vue({
             }
         },
         addRemoveQeuestion: function (question, indexSpecific = "false") {
-            if(question.selected == true){
-                //ta bort fråga
-                console.log('removed ID: "'+question.id+'"');
-                this.removeQuestionFromSelected(question);
-                this.setRemovedProperties(question);
-                this.saveAndSyncSelectedQuestions();
-            }
-            else{
+            if(question.selected != true && this.orderOfSelectedQuestions.indexOf(question.id) == -1){
                 //lägg till fråga
                 console.log('added ID: "'+question.id+'"');
                 this.setAddedProperties(question)
@@ -89,8 +82,8 @@ new Vue({
                     this.orderOfSelectedQuestions.push(question.id);
                     this.saveAndSyncSelectedQuestions();
                 }
+                question.$set('selected', !question.selected);
             }
-            question.$set('selected', !question.selected);
         },
         setAddedProperties: function (question) {
             question.$set('btnClasses', 'btn-default');
@@ -105,7 +98,14 @@ new Vue({
             this.addRemoveQeuestion(question);
         },
         removeQuestion: function (question) {
-            this.addRemoveQeuestion(question);
+            if(question.selected == true){
+                //ta bort fråga
+                console.log('removed ID: "'+question.id+'"');
+                this.removeQuestionFromSelected(question);
+                this.setRemovedProperties(question);
+                this.saveAndSyncSelectedQuestions();
+                question.$set('selected', !question.selected);
+            }
         },
         removeQuestionFromSelected: function (question) {
             var dropQ;
