@@ -15,6 +15,7 @@ class CreateQuestionsTable extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->nullable();
+            $table->boolean('private');
             $table->string('name');
             $table->text('question');
             $table->text('answer1');
