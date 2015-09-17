@@ -26,6 +26,7 @@ $factory->define(App\Question::class, function ($faker) {
     return [
         'user_id' => $user_id,
         'name' => $faker->sentence(5),
+        'private' => false,
         'question' => $faker->text,
         'answer1' => $faker->sentence(),
         'answerx' => $faker->sentence(),
