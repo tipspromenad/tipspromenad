@@ -319,8 +319,7 @@ $faker = Faker\Factory::create();
 
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="{{ asset('js/vendor/jquery.ui.touch-punch.min.js') }}"></script>
-
-<script src="{{ asset('js/tipspromenadVue.js') }}"></script>
+{!! HTML::script(elixir('js/tipspromenadVue.js')) !!}
 
 <script>
 @if($tipspromenad->showHelp)

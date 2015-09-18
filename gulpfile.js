@@ -66,9 +66,11 @@ elixir(function(mix) {
                     // frontend
                     "css/frontend.css", "js/frontend.js",
                     // skapa
+                    "js/tipspromenadVue.js",
                     "css/skapa/skapa-all.css", "js/skapa.js",
                     // backend
-                    "css/backend.css", "js/backend.js"
+                    "css/backend.css", "js/backend.js",
+
                 ])
 });
 
