@@ -6,7 +6,7 @@ Vue.use(require('vue-resource'));
 Vue.config.debug = true; // turn on debugging mode
 
 new Vue({
-    el: '#tipspromenad',
+    el: '#tipspromenadVueJS',
     data: {
             tipsID: '',
             savedMsg: false,
@@ -185,8 +185,8 @@ new Vue({
               /* activate sidebar */
               $('#sidebarAffix').affix({
                 offset: {
-                  top: 60,
-                  bottom: 80
+                  top: 150,
+                  bottom: 120
                 }
               });
             };

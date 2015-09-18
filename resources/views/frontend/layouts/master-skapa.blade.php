@@ -27,12 +27,23 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        @include('frontend.includes.nav-skapa')
+        {{-- @include('frontend.includes.nav-skapa') --}}
         @include('includes.partials.messages')
 
         @yield('content')
 
-        @include('frontend.includes.footer')
+        {{-- @include('frontend.includes.footer') --}}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-10 col-xs-offset-1">
+                    <div class="text-center text-white">
+                        <br><br>
+                        <p><i class="fa fa-copyright"></i> Daniel Blomdahl & Wictor Johansson</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{asset('js/vendor/jquery-1.11.2.min.js')}}"><\/script>')</script>

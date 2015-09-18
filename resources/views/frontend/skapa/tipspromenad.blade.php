@@ -58,6 +58,21 @@
     margin-top: 5px;
     margin-bottom: 5px;
   }
+  #tipspromenad{
+    padding: 20px 0px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+  }
+  body {
+    background: url('{{ asset("img/frontend/blurrybakgrund.png") }}') no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+      background-color:#333;
+      font-family: 'Open Sans',Arial,Helvetica,Sans-Serif;
+  }
 </style>
 @endsection
 
@@ -66,11 +81,35 @@
 require_once '../vendor/fzaninotto/faker/src/autoload.php';
 $faker = Faker\Factory::create();
 ?>
-<div class="container" id="tipspromenad">
-  <div class="row row-offcanvas row-offcanvas-right">
+<div class="container" id="tipspromenadVueJS">
+<div class="row">
+  <div class="col-xs-12 left-text" style="height:90px;margin-top: 50px;">
+    <a href="{{ url('/') }}">
+      <img src="{{ asset('img/frontend/tipspromenadlogo.svg') }}" alt="tipspromenad.NU" style="max-height:50px;" class="img-responsive ">
+    </a>
+    <ul class="nav navbar-nav navbar-right" style="margin-top:-50px;">
+      @if (Auth::guest())
+        <li><a href="http://tipspromenad.dev/auth/login"><i class="fa fa-sign-in"></i> Logga in</a></li>
+        <li><a href="http://tipspromenad.dev/auth/register"><i class="fa fa-user-plus"></i> Skapa konto</a></li>
+      @else
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->name }} <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+              <li>{!! link_to('dashboard', 'Kontrollpanelen') !!}</li>
+              <li>{!! link_to('auth/password/change', 'Byt lösenord') !!}</li>
+              @permission('view_admin_link')
+                  {{-- This can also be @role('Administrator') instead --}}
+                  <li>{!! link_to_route('backend.dashboard', 'Adminsidan') !!}</li>
+              @endpermission
+            <li>{!! link_to('auth/logout', 'Logga ut') !!}</li>
+          </ul>
+        </li>
+      @endif
+    </ul>
+  </div><!--  /.col-xs-12 -->
+</div><!--  /.row -->
+  <div class="row row-offcanvas row-offcanvas-right bg-white" id="tipspromenad">
     <div class="col-xs-12 col-sm-8">
-      <p>lorem ipsum dolor sit amet, consectetur adipisicing elit. cumque, laudantium reiciendis distinctio. repellat laudantium odio debitis doloremque velit qui nisi, est non ipsa. consequuntur, debitis!</p>
-      <br>
       <!-- Nav tabs -->
       <ul class="nav nav-tabs nav-justified" role="tablist">
         <li role="presentation"><a href="#tab-ny-fraga" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-plus"></i> Ny fråga</a></li>
@@ -194,9 +233,9 @@ $faker = Faker\Factory::create();
                 </tbody>
               </table>
               <br><br>
-              <pre>
+{{--               <pre>
                @{{ $data | json }}
-             </pre>
+             </pre> --}}
            </div><!--  /.col-xs-12 -->
          </div><!--  /.row -->
        </div><!--  /.tab-ny-fraga -->
@@ -210,13 +249,16 @@ $faker = Faker\Factory::create();
   <!--right sidebar-->
   <div class="col-sm-4 canvas-full-height" id="sidebar">
     <div class="row">
-      <div class="col-sm-12 bg-gray-lighter" id="sidebarAffix">
+    {{-- add bg color on affix --}}
+      <div class="col-sm-12 " id="sidebarAffix" style="border-left: 3px solid #cfcfcf">
         <div class="visible-xs" id="toggle-offcanvas-wrapper">
           <div id="toggle-offcanvas" data-toggle="offcanvas"><i class="fa fa-chevron-left"></i></div>
         </div>
+        <div class="btn btn-success" style="margin-top:15px;" v-on="click: showSavedMsg" >Spara</div>
+        <div class="btn btn-primary pull-right" style="margin-top:15px;"><i class="fa fa-print"></i> Skriv ut</div>
         <div class="">
         <h1 class="text-gray-light" style="white-space: pre" id="tipspromenad-name" data-active-tipspromenad="{{ $tipspromenad->id }}">{{ $tipspromenad->name }}</h1>
-          <button class="btn btn-info btn-xs" style="position: absolute; right: 10px; top: 10px;">
+          <button class="btn btn-info btn-xs" style="position: absolute; right: 15px; top: 65px;">
             <i class="fa fa-pencil"></i>
           </button>
         </div>
@@ -264,7 +306,9 @@ $faker = Faker\Factory::create();
 <!--// skapatipspromenad slut -->
 @endif
 <div class="saved-container">
-  <div class="alert alert-info center-block text-center saved-msg text-white bg-primary border-primary" v-class="in : savedMsg">Dina ändringar är nu sparade</div>
+  <div class="alert alert-info center-block text-center saved-msg text-white bg-primary border-primary" v-class="in : savedMsg">
+    Dina ändringar är nu sparade
+  </div>
 </div>
 </div><!--/.container-->
 
