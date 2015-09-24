@@ -21,7 +21,7 @@ elixir(function(mix) {
             'frontend/main.less'
         ], 'resources/assets/css/frontend')
         .styles([  // Combine pre-processed CSS files
-            'frontend/main.css'
+            'frontend/app.css'
         ], 'public/css/frontend.css', 'resources/assets/css')
         .scripts([ // Combine front-end scripts
             'plugins.js',

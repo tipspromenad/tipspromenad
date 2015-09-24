@@ -26,6 +26,11 @@
             margin-bottom: 10px;
             box-shadow: 3px 3px 8px #555555;
         }
+        .knappar2{
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-shadow: 2px 2px 6px #999999;
+        }
         .modal-header {
             padding:9px 15px;
             border-bottom:1px solid #eee;
@@ -80,14 +85,17 @@
     </section> <!--// sektion -->
 
     <!-- Section sektion -->
-    <section class="bg-success">
+    <section>
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
-                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#skapatipsmodal">Skapa tipspromenad</button>
+                <div class="col-xs-12 col-sm-4 col-lg-3 col-lg-offset-1 text-center">
+                    <h3>Inforuta #1</h3>
                 </div><!--// col -->
-                <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-lg-8 col-lg-offset-2 text-center">
-                    <button type="button" class="btn btn-lg btn-primary knappar1" data-toggle="modal" data-target="#gapatipsmodal">Gå tipspromenad</button>
+                <div class="col-xs-12 col-sm-4 col-lg-3 col-lg-offset-1 text-center">
+                    <h3>Inforuta #2</h3>
+                </div><!--// col -->
+                <div class="col-xs-12 col-sm-4 col-lg-3 col-lg-offset-1 text-center">
+                    <h3>Inforuta #3</h3>
                 </div><!--// col -->
             </div><!--// row -->
         </div><!--// container -->
@@ -110,10 +118,10 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-7 skiljestreck"> <!--// med kontodelen -->
                                 <h4 class="text-primary text-center">Med konto</h4>
-                                <button class="btn btn-primary knappar1 center-block text-white">
+                                <button class="btn btn-primary knappar2 center-block text-white">
                                     <i class="fa fa-facebook"></i> Logga in med Facebook
                                 </button>
-                                <button class="btn btn-primary knappar1 center-block text-white">
+                                <button class="btn btn-primary knappar2 center-block text-white">
                                     <i class="fa fa-google"></i> Logga in med Google
                                 </button>
                                 <form>
@@ -123,7 +131,7 @@
                                     <div class="form-group">
                                         <input id="password" name="" type="password" placeholder="Lösenord" class="form-control input-md">
                                     </div>
-                                    <button type="button" value="Send" class="btn btn-success knappar1 center-block" type="submit" >
+                                    <button type="button" value="Send" class="btn btn-success knappar2 center-block" type="submit" >
                                         <i class="fa fa-sign-in"></i> Logga in
                                     </button>
                                 </form>
@@ -136,7 +144,7 @@
                             </div> <!--// med kontodelen slut -->
                             <div class="col-xs-12 col-sm-5"> <!--// utan kontodelen -->
                                 <h4 class="text-primary text-center">Utan konto</h4>
-                                <button class="btn btn-primary knappar1 center-block"
+                                <button class="btn btn-primary knappar2 center-block"
                                         data-dismiss="modal" data-toggle="modal" data-target="#skapatipspromenad"
                                 >
                                     <i class="fa fa-edit text-white"></i> Skapa tipspromenad<br> utan konto
@@ -152,7 +160,7 @@
                     </div><!--//.container-fluid-->
                 </div><!--//.modal-body-->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
                     <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -239,8 +247,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success">Gå tipspromenad</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+                    <button type="button" class="btn btn-success">Starta tipspromenad</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->

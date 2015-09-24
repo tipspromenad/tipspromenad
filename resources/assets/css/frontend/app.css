@@ -8726,32 +8726,18 @@ button.close {
   background: url(../../img/frontend/blurrybakgrund.png);
   background-position: center;
   background-size: cover;
-  height: 480px;
 }
 .skiljestreck {
   border-right: none;
 }
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
-  .bakgrundsbild {
-    height: 550px;
-  }
   .skiljestreck {
     border-right: 1px solid #ebebeb;
   }
 }
 /* Medium devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  .bakgrundsbild {
-    height: 600px;
-  }
-}
 /* Large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-  .bakgrundsbild {
-    height: 660px;
-  }
-}
 body {
   margin-top: 75px;
 }
